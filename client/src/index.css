@@ -1,0 +1,126 @@
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&f[]=plus-jakarta-sans@400,500,600,700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* SeArah — Clean mobility green, trustworthy and civic */
+    --background: 140 15% 97%;
+    --foreground: 150 20% 12%;
+
+    --card: 140 15% 98%;
+    --card-foreground: 150 20% 12%;
+
+    --popover: 140 15% 98%;
+    --popover-foreground: 150 20% 12%;
+
+    --primary: 152 60% 28%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 140 20% 92%;
+    --secondary-foreground: 152 40% 20%;
+
+    --muted: 140 15% 93%;
+    --muted-foreground: 140 8% 50%;
+
+    --accent: 38 85% 50%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 140 12% 85%;
+    --input: 140 12% 85%;
+    --ring: 152 60% 28%;
+
+    --radius: 0.625rem;
+
+    /* Chart colors */
+    --chart-1: 152 60% 28%;
+    --chart-2: 38 85% 50%;
+    --chart-3: 200 70% 42%;
+    --chart-4: 280 55% 52%;
+    --chart-5: 340 65% 48%;
+
+    /* Custom tokens */
+    --font-body: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    --font-display: 'Cabinet Grotesk', 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .dark {
+    --background: 150 18% 8%;
+    --foreground: 140 10% 88%;
+
+    --card: 150 16% 10%;
+    --card-foreground: 140 10% 88%;
+
+    --popover: 150 16% 10%;
+    --popover-foreground: 140 10% 88%;
+
+    --primary: 152 55% 45%;
+    --primary-foreground: 150 20% 8%;
+
+    --secondary: 150 15% 16%;
+    --secondary-foreground: 140 10% 88%;
+
+    --muted: 150 15% 14%;
+    --muted-foreground: 140 8% 52%;
+
+    --accent: 38 80% 55%;
+    --accent-foreground: 0 0% 8%;
+
+    --destructive: 0 65% 55%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 150 12% 20%;
+    --input: 150 12% 20%;
+    --ring: 152 55% 45%;
+
+    --chart-1: 152 55% 45%;
+    --chart-2: 38 80% 55%;
+    --chart-3: 200 65% 55%;
+    --chart-4: 280 50% 60%;
+    --chart-5: 340 60% 58%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    @apply font-bold;
+    line-height: 1.2;
+  }
+}
+
+/* Smooth transitions */
+* {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+
+/* Trust score badge */
+.trust-excellent { @apply text-green-600 dark:text-green-400; }
+.trust-good { @apply text-blue-600 dark:text-blue-400; }
+.trust-fair { @apply text-yellow-600 dark:text-yellow-400; }
+.trust-poor { @apply text-red-600 dark:text-red-400; }
+
+/* Map container */
+.leaflet-container {
+  border-radius: var(--radius);
+  z-index: 0;
+}
