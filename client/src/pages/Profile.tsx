@@ -46,7 +46,7 @@ export default function ProfilePage() {
                     <Star key={i} className={`h-4 w-4 ${i <= Math.floor(user.trustScore ?? 5) ? 'text-amber-400 fill-amber-400' : 'text-muted'}`} />
                   ))}
                   <span className="font-bold text-sm">{user.trustScore?.toFixed(1)}</span>
-                  <span className={`text-sm font-medium ${trust.color}`}>— {trust.label}</span>
+                  <span className={`text-sm font-medium ${trust.color}`}>({trust.label})</span>
                 </div>
               </div>
             </div>
@@ -100,10 +100,10 @@ export default function ProfilePage() {
           </Card>
           <Card>
             <CardContent className="pt-4 pb-4 text-center">
-              <div className="text-2xl font-extrabold capitalize">
-                {user.category === 'social' ? '🤝' : user.category === 'premium' ? '⭐' : '👤'}
+              <div className="text-xl font-bold capitalize text-primary">
+                {user.category}
               </div>
-              <div className="text-xs text-muted-foreground mt-1 capitalize">{user.category}</div>
+              <div className="text-xs text-muted-foreground mt-1">Kategori Akun</div>
             </CardContent>
           </Card>
         </div>

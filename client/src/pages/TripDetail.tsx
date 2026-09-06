@@ -82,7 +82,7 @@ export default function TripDetailPage() {
       return res.json();
     },
     onSuccess: () => toast({
-      title: "🚨 Darurat Dilaporkan",
+      title: "Darurat Dilaporkan",
       description: "Tim keamanan SeArah telah diberitahu. Tetap tenang.",
       variant: "destructive",
     }),
@@ -162,8 +162,8 @@ export default function TripDetailPage() {
                   <div>
                     <p className="text-xs text-muted-foreground mb-1">Mode Perjalanan</p>
                     <p className="font-semibold capitalize">{
-                      trip.priceMode === 'social' ? '🤝 Sosial/Subsidi' :
-                      trip.priceMode === 'cost-sharing' ? '⛽ Cost-Sharing' : '⭐ Premium'
+                      trip.priceMode === 'social' ? 'Sosial/Subsidi' :
+                      trip.priceMode === 'cost-sharing' ? 'Bagi Biaya' : 'Premium'
                     }</p>
                   </div>
                   <div>
@@ -182,7 +182,7 @@ export default function TripDetailPage() {
                   {trip.koridor && <Badge variant="outline">{trip.koridor.nama}</Badge>}
                   {trip.genderPreference && trip.genderPreference !== 'any' && (
                     <Badge variant="outline">
-                      {trip.genderPreference === 'female' ? '👩 Perempuan saja' : '👨 Laki-laki saja'}
+                      {trip.genderPreference === 'female' ? 'Perempuan saja' : 'Laki-laki saja'}
                     </Badge>
                   )}
                   <Badge variant="outline">Deviasi maks {trip.maxDeviationKm} km</Badge>
@@ -285,7 +285,8 @@ export default function TripDetailPage() {
                   disabled={panicMutation.isPending}
                   data-testid="button-panic"
                 >
-                  🚨 {panicMutation.isPending ? "Mengirim..." : "PANIC BUTTON"}
+                  <AlertTriangle className="h-4 w-4" />
+                  {panicMutation.isPending ? "Mengirim..." : "PANIC BUTTON"}
                 </Button>
               </CardContent>
             </Card>
@@ -293,7 +294,7 @@ export default function TripDetailPage() {
             <Card>
               <CardContent className="pt-4">
                 <p className="text-xs text-muted-foreground text-center leading-relaxed">
-                  🔒 Semua perjalanan di-live-track. Dana ditahan escrow sampai perjalanan selesai.
+                  Semua perjalanan dipantau langsung. Dana ditahan escrow sampai perjalanan selesai.
                 </p>
               </CardContent>
             </Card>

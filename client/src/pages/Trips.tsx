@@ -176,8 +176,8 @@ export default function TripsPage() {
                                 {trip.driver.name.slice(0, 1)}
                               </div>
                               <span>{trip.driver.name}</span>
-                              {trip.driver.ktpVerified && <Badge variant="outline" className="text-xs py-0 px-1.5">✓ KTP</Badge>}
-                              {trip.driver.simVerified && <Badge variant="outline" className="text-xs py-0 px-1.5">✓ SIM</Badge>}
+                              {trip.driver.ktpVerified && <Badge variant="outline" className="text-xs py-0 px-1.5">KTP</Badge>}
+                              {trip.driver.simVerified && <Badge variant="outline" className="text-xs py-0 px-1.5">SIM</Badge>}
                               <span className="flex items-center gap-0.5">
                                 <Star className="h-3 w-3 text-amber-400 fill-amber-400" />
                                 {trip.driver.trustScore?.toFixed(1)}

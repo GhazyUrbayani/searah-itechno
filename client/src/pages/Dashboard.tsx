@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Car, MapPin, Clock, Star, Plus, ChevronRight, Shield, Users, Zap } from "lucide-react";
+import { Car, MapPin, Clock, Star, Plus, ChevronRight, Shield, Users, Zap, CheckCircle2, AlertCircle } from "lucide-react";
 import type { Trip, PengemudiPublik, Koridor } from "@shared/schema";
 
 type TripWithDriver = Trip & { driver?: PengemudiPublik | null; koridor?: Koridor | null };
@@ -46,7 +46,7 @@ export default function DashboardPage() {
         {/* Welcome */}
         <div className="mb-8">
           <h1 className="text-2xl font-extrabold mb-1" data-testid="text-welcome">
-            Halo, {user.name.split(" ")[0]}! 👋
+            Halo, {user.name.split(" ")[0]}!
           </h1>
           <p className="text-muted-foreground">
             {isAdmin ? "Panel admin SeArah" : isDriver ? "Kelola perjalananmu" : "Temukan tumpangan searahmu hari ini"}
@@ -76,7 +76,7 @@ export default function DashboardPage() {
           <Card>
             <CardContent className="pt-4 pb-4">
               <div className="text-2xl font-extrabold">
-                {user.ktpVerified ? <span className="text-green-600 dark:text-green-400">✓</span> : <span className="text-amber-500">!</span>}
+                {user.ktpVerified ? <CheckCircle2 className="h-7 w-7 text-green-600 dark:text-green-400" /> : <AlertCircle className="h-7 w-7 text-amber-500" />}
               </div>
               <div className="text-xs text-muted-foreground mt-0.5">KTP Verifikasi</div>
               <div className={`text-xs mt-1 font-medium ${user.ktpVerified ? 'text-green-600 dark:text-green-400' : 'text-amber-500'}`}>

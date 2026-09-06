@@ -217,9 +217,9 @@ export default function CreateTripPage() {
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="social">🤝 Sosial/Gratis — untuk warga kurang mampu</SelectItem>
-                        <SelectItem value="cost-sharing">⛽ Cost-Sharing — berbagi biaya bensin/tol</SelectItem>
-                        <SelectItem value="premium">⭐ Premium — SLA lebih jelas</SelectItem>
+                        <SelectItem value="social">Sosial atau Subsidi (warga kurang mampu)</SelectItem>
+                        <SelectItem value="cost-sharing">Cost-Sharing (berbagi biaya bahan bakar)</SelectItem>
+                        <SelectItem value="premium">Premium (jadwal presisi dan terjamin)</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />
@@ -287,8 +287,8 @@ export default function CreateTripPage() {
                         </FormControl>
                         <SelectContent>
                           <SelectItem value="any">Semua Gender</SelectItem>
-                          <SelectItem value="female">👩 Perempuan Saja</SelectItem>
-                          <SelectItem value="male">👨 Laki-laki Saja</SelectItem>
+                          <SelectItem value="female">Perempuan Saja</SelectItem>
+                          <SelectItem value="male">Laki-laki Saja</SelectItem>
                         </SelectContent>
                       </Select>
                       <FormMessage />
