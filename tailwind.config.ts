@@ -159,7 +159,6 @@ export default {
       },
       fontFamily: {
         sans: ["var(--font-body)"],
-        display: ["var(--font-display)"],
         mono: ["var(--font-data)"],
       },
       /*

@@ -42,9 +42,9 @@ export default function DampakPage() {
       <Navbar />
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Ledger Dampak Lingkungan</h1>
+          <h1 className="text-3xl font-extrabold tracking-tight">Ledger Dampak</h1>
           <p className="text-muted-foreground mt-1">
-            Pencatatan penghematan bahan bakar dan reduksi emisi karbon dari perjalanan bersama.
+            Penghematan bahan bakar dan emisi dari perjalanan bersama.
           </p>
         </div>
 
@@ -60,9 +60,6 @@ export default function DampakPage() {
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">kg CO2e</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary">
-                  <Leaf className="h-5 w-5" />
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -76,9 +73,6 @@ export default function DampakPage() {
                     {muatAgregat ? "..." : (agregat?.totalLiterDihemat ?? 0).toLocaleString("id-ID")}
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">liter bahan bakar</p>
-                </div>
-                <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center text-blue-600 dark:text-blue-400">
-                  <Fuel className="h-5 w-5" />
                 </div>
               </div>
             </CardContent>
@@ -94,9 +88,6 @@ export default function DampakPage() {
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">rupiah nilai BBM</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                  <Coins className="h-5 w-5" />
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -111,9 +102,6 @@ export default function DampakPage() {
                   </p>
                   <p className="text-xs text-muted-foreground mt-0.5">tercatat di ledger</p>
                 </div>
-                <div className="w-10 h-10 rounded-full bg-muted flex items-center justify-center text-muted-foreground">
-                  <Calendar className="h-5 w-5" />
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -123,9 +111,9 @@ export default function DampakPage() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Tren Reduksi Emisi dan Bahan Bakar</CardTitle>
+              <CardTitle className="text-base">Tren mingguan</CardTitle>
               <CardDescription>
-                Akumulasi kg CO2e dan liter BBM yang dihemat per minggu
+                kg CO2e dan liter per minggu
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -144,19 +132,21 @@ export default function DampakPage() {
                       <YAxis tick={{ fontSize: 11 }} />
                       <Tooltip />
                       <Area
+                        isAnimationActive={false}
                         type="monotone"
                         dataKey="kgCo2eDihemat"
                         name="kg CO2e dihindari"
-                        stroke="hsl(149 81% 23%)"
-                        fill="hsl(149 81% 23%)"
+                        stroke="hsl(149, 81%, 23%)"
+                        fill="hsl(149, 81%, 23%)"
                         fillOpacity={0.2}
                       />
                       <Area
+                        isAnimationActive={false}
                         type="monotone"
                         dataKey="literDihemat"
                         name="Liter BBM dihemat"
-                        stroke="hsl(211 27% 32%)"
-                        fill="hsl(211 27% 32%)"
+                        stroke="hsl(211, 27%, 32%)"
+                        fill="hsl(211, 27%, 32%)"
                         fillOpacity={0.2}
                       />
                     </AreaChart>
@@ -168,9 +158,9 @@ export default function DampakPage() {
 
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Penghematan Pengeluaran BBM Mingguan</CardTitle>
+              <CardTitle className="text-base">Rupiah dihemat</CardTitle>
               <CardDescription>
-                Estimasi nilai rupiah bahan bakar yang tidak terbakar
+                Nilai bahan bakar yang tidak terbakar
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -189,9 +179,10 @@ export default function DampakPage() {
                       <YAxis tick={{ fontSize: 11 }} />
                       <Tooltip />
                       <Bar
+                        isAnimationActive={false}
                         dataKey="rupiahDihemat"
                         name="Rupiah dihemat"
-                        fill="hsl(45 97% 46%)"
+                        fill="hsl(45, 97%, 46%)"
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>
@@ -207,17 +198,16 @@ export default function DampakPage() {
           <CardHeader>
             <CardTitle className="text-base flex items-center gap-2">
               <FileText className="h-5 w-5 text-primary" />
-              Metodologi Perhitungan dan Integritas Temporal
+              Cara hitung
             </CardTitle>
             <CardDescription>
-              Setiap angka dihitung satu kali saat status perjalanan berubah menjadi selesai.
+              Dihitung sekali saat perjalanan selesai, lalu disimpan.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4 text-sm text-muted-foreground">
             <p>
-              Hasil perhitungan disimpan langsung ke tabel ledger_dampak beserta versi rumus yang berlaku.
-              Sistem tidak menghitung ulang data historis saat render agar nilai masa lalu tetap konsisten
-              meskipun parameter harga BBM atau faktor emisi diperbarui di masa depan.
+              Angka lama tidak ikut berubah saat parameter diperbarui. Versi rumus ikut
+              tersimpan di tiap baris.
             </p>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
@@ -227,7 +217,7 @@ export default function DampakPage() {
                   (Jarak / Konsumsi) * Faktor Pengalihan
                 </code>
                 <p className="text-xs mt-2">
-                  Konsumsi diambil dari profil kendaraan pengemudi. Bila kosong, nilai bawaan 12 km/liter diterapkan.
+                  Dari data kendaraan. Kosong, pakai 12 km/liter.
                 </p>
               </div>
 
@@ -237,7 +227,7 @@ export default function DampakPage() {
                   Liter Dihemat * Faktor Emisi Bensin
                 </code>
                 <p className="text-xs mt-2">
-                  Memakai koefisien emisi pembakaran bensin 2,32 kg CO2e per liter bahan bakar.
+                  Bensin, 2,32 kg CO2e per liter.
                 </p>
               </div>
 
@@ -247,7 +237,7 @@ export default function DampakPage() {
                   Liter Dihemat * Harga BBM Acuan
                 </code>
                 <p className="text-xs mt-2">
-                  Memakai harga acuan bahan bakar bersubsidi Rp10.000 per liter.
+                  Harga acuan Rp10.000 per liter.
                 </p>
               </div>
             </div>
@@ -255,11 +245,10 @@ export default function DampakPage() {
             <div className="flex items-start gap-3 p-3 rounded-lg border border-amber-500/20 bg-amber-500/5 text-amber-800 dark:text-amber-300 text-xs">
               <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium">Keterbatasan model saat ini</p>
+                <p className="font-medium">Batas model</p>
                 <p className="mt-0.5">
-                  Faktor pengalihan moda sebesar 0,6 adalah asumsi proyek bahwa 60 persen penumpang akan
-                  menggunakan kendaraan pribadi bila layanan berbagi tumpangan ini tidak tersedia. Asumsi ini
-                  belum divalidasi dengan survei perilaku lapangan di koridor terkait.
+                  Angka 0,6 berarti kami menduga 6 dari 10 penumpang akan menyetir sendiri
+                  tanpa Searah. Dugaan ini belum diuji lapangan.
                 </p>
               </div>
             </div>
@@ -269,9 +258,9 @@ export default function DampakPage() {
         {/* Tabel Parameter Dampak dari Basis Data */}
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Parameter Acuan yang Aktif</CardTitle>
+            <CardTitle className="text-base">Parameter aktif</CardTitle>
             <CardDescription>
-              Parameter disimpan sebagai baris basis data agar dapat diperbarui tanpa deploy ulang aplikasi.
+              Tersimpan sebagai baris, bisa diubah tanpa deploy ulang.
             </CardDescription>
           </CardHeader>
           <CardContent>

@@ -138,10 +138,10 @@ export default function KepatuhanPage() {
         <div>
           <div className="flex items-center gap-2">
             <ShieldCheck className="h-7 w-7 text-primary" />
-            <h1 className="text-3xl font-extrabold tracking-tight">Kepatuhan Basis Data</h1>
+            <h1 className="text-3xl font-extrabold tracking-tight">Kepatuhan</h1>
           </div>
           <p className="text-muted-foreground mt-1">
-            Penegakan aturan bisnis secara permanen di tingkat mesin PostgreSQL menggunakan database trigger.
+            Tiga aturan dijaga trigger PostgreSQL, bukan validasi formulir.
           </p>
         </div>
 
@@ -150,9 +150,9 @@ export default function KepatuhanPage() {
           <CardHeader>
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-base">Pengujian Langsung Penolakan Trigger</CardTitle>
+                <CardTitle className="text-base">Coba langgar aturannya</CardTitle>
                 <CardDescription>
-                  Uji coba pengiriman perjalanan dengan tarif Rp999.000 yang melampaui batas plafon koridor.
+                  Kirim perjalanan bertarif Rp999.000, jauh di atas plafon koridor.
                 </CardDescription>
               </div>
               <Badge variant="outline" className="text-xs">
@@ -162,9 +162,7 @@ export default function KepatuhanPage() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm text-muted-foreground">
-              Tombol di bawah akan mengirim permintaan pembuatan perjalanan dengan tarif yang sengaja dibuat
-              melebihi batas tarif per kilometer koridor. Trigger basis data harus menggagalkan transaksi dan
-              mengembalikan status HTTP 422.
+              Basis data harus menolaknya dengan HTTP 422.
             </p>
 
             <div className="flex flex-wrap items-center gap-3">
@@ -225,9 +223,9 @@ export default function KepatuhanPage() {
             <CardHeader>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <CardTitle className="text-base">1. Batas Plafon Tarif per Kilometer Koridor</CardTitle>
+                  <CardTitle className="text-base">1. Plafon tarif per kilometer</CardTitle>
                   <CardDescription>
-                    Mencegah komersialisasi carpooling dengan membatasi kontribusi biaya per kilometer.
+                    Menjaga tarif tetap berbagi biaya, bukan komersial.
                   </CardDescription>
                 </div>
                 <Badge variant="secondary" className="text-xs">BEFORE INSERT / UPDATE trips</Badge>
@@ -235,9 +233,7 @@ export default function KepatuhanPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Setiap koridor memiliki nilai plafon_tarif_per_km di basis data. Tarif per kursi yang diajukan
-                pengemudi tidak boleh melebihi hasil kali jarak kilometer perjalanan dengan plafon tersebut.
-                Bila melebihi, trigger fn_cek_plafon_tarif langsung melempar eksepsi.
+                Tarif per kursi tidak boleh melebihi plafon koridor dikali jarak.
               </p>
               <div className="bg-muted p-3 rounded-lg overflow-x-auto">
                 <pre className="text-xs font-mono">{KODE_TRIGGER_PLAFON}</pre>
@@ -250,9 +246,9 @@ export default function KepatuhanPage() {
             <CardHeader>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <CardTitle className="text-base">2. Batas Maksimal 2 Perjalanan Aktif per Hari</CardTitle>
+                  <CardTitle className="text-base">2. Dua perjalanan aktif per hari</CardTitle>
                   <CardDescription>
-                    Menjaga prinsip carpooling murni dan mencegah pengemudi beroperasi sebagai taksi gelap.
+                    Menahan pengemudi beroperasi seperti taksi gelap.
                   </CardDescription>
                 </div>
                 <Badge variant="secondary" className="text-xs">BEFORE INSERT trips</Badge>
@@ -260,8 +256,7 @@ export default function KepatuhanPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Seorang pengemudi hanya diizinkan menawarkan maksimal dua perjalanan aktif (status open atau
-                in-progress) pada hari kalender yang sama. Penghitungan memakai zona waktu lokal Asia/Jakarta.
+                Dihitung per tanggal, memakai waktu Asia/Jakarta.
               </p>
               <div className="bg-muted p-3 rounded-lg overflow-x-auto">
                 <pre className="text-xs font-mono">{KODE_TRIGGER_BATAS_HARIAN}</pre>
@@ -274,9 +269,9 @@ export default function KepatuhanPage() {
             <CardHeader>
               <div className="flex items-start justify-between gap-4">
                 <div>
-                  <CardTitle className="text-base">3. Validasi Kapasitas Kursi Pemesanan</CardTitle>
+                  <CardTitle className="text-base">3. Kapasitas kursi</CardTitle>
                   <CardDescription>
-                    Mencegah overbooking pada tingkat transaksi basis data ketika pemesanan konkuren terjadi.
+                    Menahan kelebihan pesan saat dua orang memesan bersamaan.
                   </CardDescription>
                 </div>
                 <Badge variant="secondary" className="text-xs">BEFORE INSERT / UPDATE bookings</Badge>
@@ -284,9 +279,7 @@ export default function KepatuhanPage() {
             </CardHeader>
             <CardContent className="space-y-3">
               <p className="text-sm text-muted-foreground">
-                Trigger fn_cek_kursi_penuh menghitung akumulasi kursi yang telah dipesan pada pemesanan aktif.
-                Bila jumlah kursi baru ditambah kursi terpesan melebihi kapasitas available_seats milik
-                perjalanan, transaksi pemesanan ditolak seketika.
+                Kursi pada pemesanan aktif dijumlahkan. Melebihi kapasitas, transaksi ditolak.
               </p>
               <div className="bg-muted p-3 rounded-lg overflow-x-auto">
                 <pre className="text-xs font-mono">{KODE_TRIGGER_KAPASITAS}</pre>

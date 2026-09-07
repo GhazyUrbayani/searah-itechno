@@ -49,11 +49,11 @@ Tiga aturan kepatuhan basis data diuji menggunakan metode analisis nilai batas.
 | BVA-1.1 | Di bawah batas | Rp5.000 | Disimpan | Disimpan (HTTP 201) | LULUS |
 | BVA-1.2 | Tepat pada batas | Rp6.000 | Disimpan | Disimpan (HTTP 201) | LULUS |
 | BVA-1.3 | Tepat di atas batas | Rp6.001 | Ditolak trigger | Ditolak (HTTP 422) | LULUS |
-| BVA-1.4 | Jauh di atas batas | Rp999.999 | Ditolak trigger | Ditolak (HTTP 422) | LULUS |
+| BVA-1.4 | Jauh di atas batas | Rp999.000 | Ditolak trigger | Ditolak (HTTP 422) | LULUS |
 | BVA-1.5 | Mode sosial bertarif | Rp1.000 | Ditolak trigger | Ditolak (HTTP 422) | LULUS |
 
 Pesan penolakan aktual dari PostgreSQL:
-`Tarif per kursi melampaui plafon koridor: Rp999999 > batas maksimum Rp6000 (jarak 2.0 km x plafon Rp3000/km)`
+`Tarif per kursi melampaui plafon koridor: Rp999000 > batas maksimum Rp9759 (jarak 3.3 km x plafon Rp3000/km)`
 
 ### 4.2 BVA Aturan 2: Batas Maksimal Dua Perjalanan Aktif per Hari
 - Parameter uji: Pengemudi ID 1, tanggal keberangkatan 15 Oktober 2026.

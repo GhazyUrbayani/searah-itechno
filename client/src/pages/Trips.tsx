@@ -153,8 +153,7 @@ export default function TripsPage() {
             Cocokkan perjalanan
           </h2>
           <p className="mb-3 text-sm text-muted-foreground">
-            Peringkat disusun modul skoring, bukan diurutkan berdasarkan waktu. Setiap hasil dapat
-            dibuka untuk melihat asal-usul skornya.
+            Peringkat dari skoring, bukan urutan waktu. Buka rincian untuk melihat asal angkanya.
           </p>
 
           <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
@@ -235,7 +234,7 @@ export default function TripsPage() {
                 <div className="rounded-lg border border-dashed p-4">
                   <p className="text-sm font-medium">Tidak ada perjalanan yang lolos.</p>
                   <p className="text-sm text-muted-foreground">
-                    Longgarkan toleransi waktu, kurangi jumlah kursi, atau pilih koridor lain.
+                    Longgarkan toleransi waktu, atau pilih koridor lain.
                   </p>
                 </div>
               ) : (
@@ -372,9 +371,6 @@ export default function TripsPage() {
                   <CardContent className="py-5">
                     <div className="flex flex-wrap items-start gap-4 justify-between">
                       <div className="flex items-start gap-4 min-w-0">
-                        <div className="w-11 h-11 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-                          <Car className="h-5 w-5" />
-                        </div>
                         <div className="min-w-0">
                           <div className="flex flex-wrap items-center gap-2 mb-1.5">
                             <span className="font-bold text-base">{trip.originName}</span>

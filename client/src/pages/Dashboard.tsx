@@ -99,9 +99,6 @@ export default function DashboardPage() {
             <Link href="/trips/new">
               <Card className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all group">
                 <CardContent className="flex items-center gap-4 py-5">
-                  <div className="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <Plus className="h-6 w-6" />
-                  </div>
                   <div>
                     <div className="font-bold">Buat Perjalanan</div>
                     <div className="text-xs text-muted-foreground">Tawarkan kursi kosong</div>
@@ -114,9 +111,6 @@ export default function DashboardPage() {
           <Link href="/trips">
             <Card className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all group">
               <CardContent className="flex items-center gap-4 py-5">
-                <div className="w-12 h-12 rounded-xl bg-blue-500/10 text-blue-600 dark:text-blue-400 flex items-center justify-center group-hover:bg-blue-500 group-hover:text-white transition-colors">
-                  <MapPin className="h-6 w-6" />
-                </div>
                 <div>
                   <div className="font-bold">Cari Tumpangan</div>
                   <div className="text-xs text-muted-foreground">Temukan perjalanan searah</div>
@@ -128,9 +122,6 @@ export default function DashboardPage() {
           <Link href="/bookings">
             <Card className="cursor-pointer hover:border-primary/50 hover:shadow-md transition-all group">
               <CardContent className="flex items-center gap-4 py-5">
-                <div className="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center group-hover:bg-amber-500 group-hover:text-white transition-colors">
-                  <Clock className="h-6 w-6" />
-                </div>
                 <div>
                   <div className="font-bold">Pesananku</div>
                   <div className="text-xs text-muted-foreground">Riwayat & aktif</div>
@@ -169,9 +160,6 @@ export default function DashboardPage() {
                     <CardContent className="py-4">
                       <div className="flex items-start justify-between gap-3">
                         <div className="flex items-start gap-3 min-w-0">
-                          <div className="w-9 h-9 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <Car className="h-4 w-4" />
-                          </div>
                           <div className="min-w-0">
                             <div className="flex items-center gap-1.5 text-sm text-muted-foreground mb-0.5">
                               <MapPin className="h-3 w-3 flex-shrink-0" />

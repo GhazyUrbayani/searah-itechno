@@ -66,9 +66,13 @@
     --chart-4: var(--sirene);
     --chart-5: 103 12% 60%;
 
-    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
-    --font-display: 'Cabinet Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
-    --font-data: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
+    /*
+     * Satu keluarga untuk teks dan satu pasangannya untuk data. IBM Plex
+     * dirancang untuk antarmuka teknis, bukan untuk halaman pemasaran, dan
+     * versi monospace-nya berbagi kerangka huruf yang sama dengan versi teks.
+     */
+    --font-body: 'IBM Plex Sans', system-ui, -apple-system, sans-serif;
+    --font-data: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
   }
 
   .dark {
@@ -122,11 +126,12 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Judul memakai keluarga yang sama, dibedakan oleh bobot dan kerapatan,
+     bukan oleh huruf tampilan tersendiri. */
   h1, h2, h3, h4, h5, h6 {
-    font-family: var(--font-display);
-    @apply font-bold;
-    line-height: 1.15;
-    letter-spacing: -0.01em;
+    @apply font-semibold;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
   }
 
   /*

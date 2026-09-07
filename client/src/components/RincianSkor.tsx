@@ -82,8 +82,7 @@ export default function RincianSkor({ skor, komponen, ukuran }: Props) {
       </dl>
 
       <p className="text-xs text-muted-foreground">
-        Bobot positif berjumlah 0,90. Sisa 0,10 dipakai sebagai penalti deviasi yang selalu
-        mengurangi, jadi skor tertinggi yang mungkin adalah 0,9000.
+        Skor tertinggi 0,9000. Sisa 0,10 dipakai penalti deviasi.
       </p>
     </div>
   );

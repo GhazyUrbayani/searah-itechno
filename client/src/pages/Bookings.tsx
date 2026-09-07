@@ -165,9 +165,6 @@ export default function BookingsPage() {
                 <CardContent className="py-5">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="flex items-start gap-4 min-w-0 flex-1">
-                      <div className="w-10 h-10 rounded-full bg-primary/10 text-primary flex items-center justify-center flex-shrink-0">
-                        <Car className="h-5 w-5" />
-                      </div>
                       <div className="min-w-0">
                         {booking.trip ? (
                           <>

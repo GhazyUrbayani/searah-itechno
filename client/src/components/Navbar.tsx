@@ -47,7 +47,7 @@ export default function Navbar() {
                   <path d="M13 24 L23 24" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.6"/>
                 </svg>
               </div>
-              <span className="font-display font-extrabold text-xl tracking-tight text-primary">
+              <span className="font-extrabold text-xl tracking-tight text-primary">
                 SeArah
               </span>
             </div>

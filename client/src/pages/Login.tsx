@@ -101,7 +101,7 @@ export default function LoginPage() {
               <circle cx="18" cy="18" r="3" fill="white" />
               <path d="M13 24 L23 24" stroke="white" strokeWidth="2" strokeLinecap="round" opacity="0.6" />
             </svg>
-            <span className="text-3xl font-extrabold text-primary font-display">Searah</span>
+            <span className="text-3xl font-extrabold text-primary">Searah</span>
           </div>
           <p className="text-sm text-muted-foreground">Berbagi kursi kosong di koridor institusi</p>
         </div>

@@ -258,8 +258,13 @@ async function main() {
     const koridor = koridorRows[(i - 1) % koridorRows.length];
     const kendaraanId = driverKendaraanMap[driverId];
 
-    // Selang hari ke belakang: 1 sampai 7 hari lalu
-    const hariKeBelakang = 1 + (i % 7);
+    /*
+     * Perjalanan masa lalu disebar ke 28 hari terakhir, bukan 7 hari.
+     * Grafik pada halaman dampak dikelompokkan per minggu. Dengan rentang 7
+     * hari, seluruh baris jatuh ke satu minggu dan grafiknya hanya berisi satu
+     * batang, yang tidak menunjukkan tren apa pun.
+     */
+    const hariKeBelakang = 1 + ((i * 5) % 28);
     const departureTime = new Date(now.getTime() - hariKeBelakang * 24 * 60 * 60 * 1000 + (i * 37) * 60 * 1000);
 
     // Koordinat dan jarak diturunkan dari ujung koridor.
@@ -333,14 +338,36 @@ async function main() {
     const koridor = koridorRows[(j - 1) % koridorRows.length];
     const kendaraanId = driverKendaraanMap[driverId];
 
-    // Jadwalkan 1 sampai 3 hari ke depan
+    /*
+     * Jam berangkat ditambatkan ke jam komuter, bukan dihitung dari jam saat
+     * skrip dijalankan. Rumus lama menambahkan selisih jam terhadap waktu
+     * sekarang, sehingga hasilnya bisa jatuh pukul 02.00 dan melanggar jam
+     * operasional koridor. Jam 07.00 dan 17.00 WIB berada di dalam jendela
+     * ketiga koridor.
+     */
     const hariKedepan = Math.floor((j - 1) / 2);
-    const departureTime = new Date(now.getTime() + (hariKedepan * 24 + 8 + (j % 5)) * 60 * 60 * 1000);
+    const jamWib = j % 2 === 1 ? 7 : 17;
+    const tanggal = new Date(now.getTime() + hariKedepan * 24 * 60 * 60 * 1000);
+    // Waktu disimpan dalam UTC, dan WIB adalah UTC ditambah tujuh jam.
+    const departureTime = new Date(
+      Date.UTC(
+        tanggal.getUTCFullYear(),
+        tanggal.getUTCMonth(),
+        tanggal.getUTCDate(),
+        jamWib - 7,
+        (j * 5) % 60,
+      ),
+    );
 
     const titik = titikPerjalanan(koridor, j + 11);
     const jarakKm = titik.jarakKm;
     const batasTarif = Math.floor(jarakKm * koridor.plafon_tarif_per_km);
-    const pricePerSeat = Math.min(batasTarif, Math.round((batasTarif * 0.75) / 1000) * 1000);
+
+    // Ketiga mode tarif diwakili supaya penyaring mode pada halaman depan
+    // punya isi. Mode sosial wajib bertarif nol, ditegakkan trigger.
+    const mode = j % 4 === 0 ? "social" : j % 4 === 2 ? "premium" : "cost-sharing";
+    const pricePerSeat =
+      mode === "social" ? 0 : Math.min(batasTarif, Math.round((batasTarif * 0.75) / 1000) * 1000);
 
     const [tripRow] = await sql`
       INSERT INTO trips (
@@ -355,7 +382,7 @@ async function main() {
         ${koridor.asal_nama}, ${titik.asalLat}, ${titik.asalLng},
         ${koridor.tujuan_nama}, ${titik.tujuanLat}, ${titik.tujuanLng},
         ${departureTime.toISOString()}, 4, 1,
-        'cost-sharing', ${pricePerSeat}, 2.0,
+        ${mode}, ${pricePerSeat}, 2.0,
         'any', 'open', ${jarakKm}, 'Tersedia kursi kosong', ${now.toISOString()}
       ) RETURNING id;
     `;

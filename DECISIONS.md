@@ -413,3 +413,146 @@ ditampilkan lewat toast berjudul Formulir belum lengkap.
 **Alasan.** Pesan galat harus menjelaskan apa yang salah dan apa yang harus
 dilakukan. Kegagalan yang diam adalah bentuk terburuknya, karena pengguna tidak
 punya petunjuk sama sekali.
+
+## KD-30. Palet enam nilai dipasang di lapisan token
+
+**Konteks.** Palet rambu jalan yang diminta tidak pernah dipasang. Antarmuka
+memakai tema hijau bawaan, dan halaman memuat lebih dari seratus kelas warna
+Tailwind bawaan seperti `text-green-400` dan `bg-blue-900` yang tidak tunduk
+pada token mana pun.
+
+**Keputusan.** Enam nilai dipasang sebagai variabel CSS di `client/src/index.css`,
+lalu skala warna Tailwind untuk hijau, kuning, jingga, merah, biru, ungu, dan
+abu dipetakan ke turunan keenam nilai itu di `tailwind.config.ts`.
+
+**Alasan pemetaan skala.** Menyunting seratus lebih kelas satu per satu mahal
+dan mudah terlewat. Memetakan skalanya membuat setiap kelas warna yang sudah
+telanjur dipakai jatuh ke palet, dan antarmuka tidak pernah menampilkan warna
+ketujuh.
+
+**Perubahan lain yang menyertai.** Radius sudut turun dari 10 piksel menjadi 2
+piksel, mengikuti bentuk papan dan rambu. Seluruh utilitas `shadow` dinolkan
+kecuali untuk lapisan mengambang, sehingga pemisahan bidang mengandalkan garis
+rambut. Tema bawaan menjadi terang, karena palet dibangun di atas warna kertas.
+
+## KD-31. Halaman depan dipimpin papan keberangkatan
+
+**Konteks.** Halaman depan menampilkan judul pemasaran besar dua warna, lencana
+pil di atasnya, dan papan keberangkatan sebagai pelengkap di kolom samping.
+
+**Keputusan.** Papan keberangkatan menjadi elemen utama dan memakai lebar
+penuh, disusun sebagai tabel dengan kolom jam, rute, koridor, jarak, kursi, dan
+tarif. Judul pemasaran dan lencana pil dibuang.
+
+**Alasan.** Orang harus paham produknya dari kolom, tanpa membaca satu kalimat
+promosi pun. Bentuk tabel juga membuat monospace punya alasan, yaitu menjaga
+angka tetap rata antar baris.
+
+**Perubahan menyertai.** Dua grid kartu seragam diganti. Tiga mode tarif
+menjadi tabel perbandingan, dan enam kartu kepatuhan menjadi daftar definisi
+yang menyebut nama trigger yang menegakkannya.
+
+## KD-32. Font diganti IBM Plex, dari 25 keluarga menjadi 2
+
+**Konteks.** `client/index.html` memuat 25 keluarga font dari Google Fonts,
+sisa berkas contoh. Antarmuka sendiri memakai Cabinet Grotesk dan Plus Jakarta
+Sans dari Fontshare, kombinasi yang lazim dipakai halaman pemasaran buatan
+templat.
+
+**Keputusan.** Hanya IBM Plex Sans dan IBM Plex Mono yang dimuat. Judul memakai
+keluarga yang sama dengan teks isi, dibedakan bobot dan kerapatan huruf, bukan
+oleh huruf tampilan tersendiri.
+
+**Alasan.** IBM Plex dirancang untuk antarmuka teknis. Versi monospace-nya
+berbagi kerangka huruf dengan versi teksnya, sehingga angka pada papan
+keberangkatan sejajar dengan teks di sekitarnya. Pengurangan dari 25 keluarga
+menjadi 2 juga memangkas permintaan jaringan saat halaman dimuat.
+
+## KD-33. Ikon dekoratif dalam lingkaran berwarna dibuang
+
+**Konteks.** Sepuluh tempat menampilkan ikon di dalam lingkaran atau kotak
+berlatar warna lembut. Pola itu tidak menambah informasi apa pun yang belum
+ditulis angkanya, dan bentuk lingkaran berwarna membuatnya terbaca seperti
+emoji.
+
+**Keputusan.** Kesepuluh wadah ikon dibuang. Inisial nama pada avatar tetap
+dipertahankan, karena huruf di sana membawa identitas orang.
+
+## KD-34. Animasi Recharts dimatikan
+
+**Konteks.** Aturan CSS `prefers-reduced-motion` tidak dapat menghentikan
+animasi Recharts, karena animasi itu digerakkan JavaScript, bukan transisi CSS.
+Grafik area juga tergambar setengah jalan pada tangkapan layar otomatis.
+
+**Keputusan.** Seluruh seri grafik memakai `isAnimationActive={false}`.
+
+**Manfaat ganda.** Preferensi gerak dikurangi benar-benar dihormati, dan grafik
+langsung tergambar penuh tanpa menunggu animasi masuk.
+
+## KD-35. Rentang data historis seed dilebarkan menjadi 28 hari
+
+**Konteks.** Skrip seed menyebar perjalanan masa lalu ke 7 hari terakhir.
+Grafik pada halaman dampak dikelompokkan per minggu, sehingga seluruh baris
+jatuh ke satu batang dan grafik tidak menunjukkan tren apa pun.
+
+**Keputusan.** Perjalanan masa lalu disebar ke 28 hari terakhir. Grafik kini
+berisi empat batang mingguan.
+
+**Catatan.** Ini menyimpang dari spesifikasi awal yang menyebut tujuh hari ke
+belakang. Spesifikasi itu berbenturan dengan permintaan grafik mingguan pada
+bagian yang sama. Rentang 28 hari memenuhi keduanya, karena jumlah perjalanan
+dan pemesanan tetap 25 dan 40.
+
+## KD-36. Teks antarmuka dipangkas
+
+**Konteks.** Deskripsi bagian dan penjelasan aturan ditulis dalam dua sampai
+tiga kalimat penuh. Di layar, teks sepanjang itu tidak dibaca dan hanya
+menambah tinggi halaman.
+
+**Keputusan.** Seluruh prosa antarmuka dipangkas menjadi satu kalimat pendek.
+Contohnya, deskripsi halaman depan berubah dari tiga kalimat menjadi "Kursi
+kosong di koridor kampus. Tarif berplafon, dampak tercatat."
+
+**Batasnya.** Rumus, sumber parameter, dan potongan SQL tidak ikut dipangkas,
+karena justru itu isi yang harus dapat diperiksa.
+
+## KD-37. Tabel mode tarif menjadi penyaring papan
+
+**Konteks.** Tabel tiga mode tarif hanya menjelaskan, tanpa akibat apa pun bila
+disentuh.
+
+**Keputusan.** Baris mode dapat diklik dan ditekan lewat keyboard. Memilih satu
+mode menyaring papan keberangkatan di atas, membawa pandangan kembali ke papan,
+dan memunculkan penanda mode aktif beserta tombol penghapus saringan. Kolom
+Tersedia menunjukkan jumlah kursi yang dibuka pada mode itu.
+
+**Verifikasi.** Menekan baris Premium menyusutkan papan dari 5 baris menjadi 2,
+menyetel `aria-pressed` menjadi true, dan memunculkan penanda Disaring mode.
+
+## KD-38. Jam berangkat data contoh ditambatkan ke jam komuter
+
+**Konteks.** Waktu berangkat perjalanan mendatang dihitung sebagai waktu
+sekarang ditambah selisih jam. Hasilnya bergantung pada jam skrip seed
+dijalankan. Pada satu kali jalan, papan menampilkan keberangkatan pukul 22.29
+sampai 02.29, di luar jam operasional ketiga koridor.
+
+**Keputusan.** Jam berangkat ditambatkan ke pukul 07.00 dan 17.00 WIB pada
+tanggal sasaran, lalu diberi selisih menit yang menentu.
+
+**Sekaligus.** Ketiga mode tarif kini terwakili pada perjalanan mendatang,
+yaitu 4 cost sharing, 2 premium, dan 1 sosial. Sebelumnya semuanya cost
+sharing, sehingga dua dari tiga baris pada penyaring mode selalu kosong.
+
+## KD-39. Angka ringkasan memakai empat warna palet
+
+**Konteks.** Keempat angka ringkasan memakai satu warna hijau yang sama,
+sehingga tidak menonjol satu pun.
+
+**Keputusan.** Tiap angka memakai warna palet yang berbeda, yaitu rambu untuk
+institusi, turunan tinta untuk koridor, sirene untuk aturan, dan turunan marka
+gelap untuk unit test. Masing-masing diberi garis aksen pendek di atasnya.
+
+**Catatan kontras.** Marka `#E8B004` hanya mencapai rasio 1,64 banding 1 di
+atas kertas, jauh di bawah ambang WCAG AA. Karena itu teksnya memakai varian
+gelap `hsl(43 95% 31%)`, sedangkan nilai marka asli dipakai pada garis aksen
+yang bukan teks.
