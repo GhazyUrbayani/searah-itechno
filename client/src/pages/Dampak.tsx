@@ -147,16 +147,16 @@ export default function DampakPage() {
                         type="monotone"
                         dataKey="kgCo2eDihemat"
                         name="kg CO2e dihindari"
-                        stroke="#059669"
-                        fill="#059669"
+                        stroke="hsl(149 81% 23%)"
+                        fill="hsl(149 81% 23%)"
                         fillOpacity={0.2}
                       />
                       <Area
                         type="monotone"
                         dataKey="literDihemat"
                         name="Liter BBM dihemat"
-                        stroke="#2563eb"
-                        fill="#2563eb"
+                        stroke="hsl(211 27% 32%)"
+                        fill="hsl(211 27% 32%)"
                         fillOpacity={0.2}
                       />
                     </AreaChart>
@@ -191,7 +191,7 @@ export default function DampakPage() {
                       <Bar
                         dataKey="rupiahDihemat"
                         name="Rupiah dihemat"
-                        fill="#d97706"
+                        fill="hsl(45 97% 46%)"
                         radius={[4, 4, 0, 0]}
                       />
                     </BarChart>

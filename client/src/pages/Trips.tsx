@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { SELANG_POLLING_MS } from "@/lib/queryClient";
+import { apiRequest, SELANG_POLLING_MS } from "@/lib/queryClient";
 import { Link, useLocation } from "wouter";
 import { useAuth } from "../components/AuthContext";
 import Navbar from "../components/Navbar";
@@ -11,7 +11,27 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Car, MapPin, Clock, Star, Search, Filter, Users, Plus } from "lucide-react";
-import type { Trip, PengemudiPublik, Koridor } from "@shared/schema";
+import type { Trip, PengemudiPublik, Koridor, Institusi } from "@shared/schema";
+import type { HasilPencocokan } from "@shared/matching";
+import RincianSkor from "../components/RincianSkor";
+
+type KoridorDenganInstitusi = Koridor & { institusi: Institusi | null };
+
+type HasilCocok = HasilPencocokan & { trip: TripWithDriver | null };
+
+interface JawabanCocok {
+  versiRumus: string;
+  bobot: Record<string, number>;
+  jumlahKandidat: number;
+  jumlahLolos: number;
+  hasil: HasilCocok[];
+}
+
+/** Waktu lokal untuk input datetime-local, dibulatkan ke menit. */
+function nilaiWaktuLokal(waktu: Date): string {
+  const geser = waktu.getTimezoneOffset() * 60000;
+  return new Date(waktu.getTime() - geser).toISOString().slice(0, 16);
+}
 
 type TripWithDriver = Trip & { driver?: PengemudiPublik | null; koridor?: Koridor | null };
 
@@ -41,12 +61,62 @@ export default function TripsPage() {
   const [filterMode, setFilterMode] = useState("all");
   const [filterCorridor, setFilterCorridor] = useState("all");
 
+  // Formulir pencocokan
+  const [cocokKoridor, setCocokKoridor] = useState("");
+  const [cocokWaktu, setCocokWaktu] = useState(() => nilaiWaktuLokal(new Date()));
+  const [cocokKursi, setCocokKursi] = useState("1");
+  const [cocokToleransi, setCocokToleransi] = useState("45");
+  const [hasilCocok, setHasilCocok] = useState<JawabanCocok | null>(null);
+  const [sedangCocok, setSedangCocok] = useState(false);
+  const [galatCocok, setGalatCocok] = useState<string | null>(null);
+  const [skorTerbuka, setSkorTerbuka] = useState<number | null>(null);
+
   if (!user) { navigate("/login"); return null; }
 
   const { data: trips, isLoading } = useQuery<TripWithDriver[]>({
     queryKey: ["/api/trips"],
     refetchInterval: SELANG_POLLING_MS,
   });
+
+  const { data: daftarKoridor } = useQuery<KoridorDenganInstitusi[]>({
+    queryKey: ["/api/koridor"],
+  });
+
+  /**
+   * Menjalankan pencocokan di server. Titik jemput dan titik turun memakai
+   * ujung koridor, karena koridor tertutup memang punya satu asal dan satu
+   * tujuan tetap.
+   */
+  async function jalankanPencocokan() {
+    const koridorTerpilih = (daftarKoridor ?? []).find((k) => String(k.id) === cocokKoridor);
+    if (!koridorTerpilih) {
+      setGalatCocok("Pilih koridor lebih dulu.");
+      return;
+    }
+
+    setSedangCocok(true);
+    setGalatCocok(null);
+    try {
+      const parameter = new URLSearchParams({
+        koridorId: String(koridorTerpilih.id),
+        jemputLat: String(koridorTerpilih.asalLat),
+        jemputLng: String(koridorTerpilih.asalLng),
+        turunLat: String(koridorTerpilih.tujuanLat),
+        turunLng: String(koridorTerpilih.tujuanLng),
+        waktuDiinginkan: new Date(cocokWaktu).toISOString(),
+        kursiDibutuhkan: cocokKursi,
+        toleransiMenit: cocokToleransi,
+      });
+      // apiRequest sudah menerjemahkan galat validasi Zod menjadi kalimat.
+      const res = await apiRequest("GET", `/api/trips/match?${parameter.toString()}`);
+      setHasilCocok((await res.json()) as JawabanCocok);
+      setSkorTerbuka(null);
+    } catch (galat) {
+      setGalatCocok(galat instanceof Error ? galat.message : "Pencocokan gagal dijalankan.");
+    } finally {
+      setSedangCocok(false);
+    }
+  }
 
   const filtered = (trips ?? []).filter(t => {
     if (filterStatus !== "all" && t.status !== filterStatus) return false;
@@ -76,6 +146,165 @@ export default function TripsPage() {
             </Link>
           )}
         </div>
+
+        {/* Pencocokan berperingkat */}
+        <section className="mb-6 rounded-xl border bg-card p-4" aria-labelledby="judul-pencocokan">
+          <h2 id="judul-pencocokan" className="text-base font-semibold">
+            Cocokkan perjalanan
+          </h2>
+          <p className="mb-3 text-sm text-muted-foreground">
+            Peringkat disusun modul skoring, bukan diurutkan berdasarkan waktu. Setiap hasil dapat
+            dibuka untuk melihat asal-usul skornya.
+          </p>
+
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="space-y-1">
+              <label htmlFor="cocok-koridor" className="text-xs font-medium">Koridor</label>
+              <Select value={cocokKoridor} onValueChange={setCocokKoridor}>
+                <SelectTrigger id="cocok-koridor" data-testid="select-cocok-koridor">
+                  <SelectValue placeholder="Pilih koridor" />
+                </SelectTrigger>
+                <SelectContent>
+                  {(daftarKoridor ?? []).map((k) => (
+                    <SelectItem key={k.id} value={String(k.id)}>{k.nama}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="cocok-waktu" className="text-xs font-medium">Waktu diinginkan</label>
+              <Input
+                id="cocok-waktu"
+                type="datetime-local"
+                value={cocokWaktu}
+                onChange={(e) => setCocokWaktu(e.target.value)}
+                data-testid="input-cocok-waktu"
+              />
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="cocok-kursi" className="text-xs font-medium">Kursi dibutuhkan</label>
+              <Input
+                id="cocok-kursi"
+                type="number"
+                min={1}
+                max={6}
+                value={cocokKursi}
+                onChange={(e) => setCocokKursi(e.target.value)}
+                data-testid="input-cocok-kursi"
+              />
+            </div>
+            <div className="space-y-1">
+              <label htmlFor="cocok-toleransi" className="text-xs font-medium">Toleransi waktu, menit</label>
+              <Input
+                id="cocok-toleransi"
+                type="number"
+                min={5}
+                max={240}
+                value={cocokToleransi}
+                onChange={(e) => setCocokToleransi(e.target.value)}
+                data-testid="input-cocok-toleransi"
+              />
+            </div>
+          </div>
+
+          <Button
+            className="mt-3 font-semibold"
+            onClick={jalankanPencocokan}
+            disabled={sedangCocok}
+            data-testid="button-jalankan-pencocokan"
+          >
+            {sedangCocok ? "Menghitung skor" : "Cocokkan perjalanan"}
+          </Button>
+
+          {galatCocok && (
+            <p className="mt-2 text-sm text-destructive" role="alert">
+              {galatCocok}
+            </p>
+          )}
+
+          {hasilCocok && (
+            <div className="mt-4 space-y-3">
+              <p className="text-sm text-muted-foreground">
+                <span className="font-mono tabular-nums">{hasilCocok.jumlahLolos}</span> dari{" "}
+                <span className="font-mono tabular-nums">{hasilCocok.jumlahKandidat}</span> kandidat
+                lolos aturan gugur. Versi rumus{" "}
+                <span className="font-mono">{hasilCocok.versiRumus}</span>.
+              </p>
+
+              {hasilCocok.hasil.length === 0 ? (
+                <div className="rounded-lg border border-dashed p-4">
+                  <p className="text-sm font-medium">Tidak ada perjalanan yang lolos.</p>
+                  <p className="text-sm text-muted-foreground">
+                    Longgarkan toleransi waktu, kurangi jumlah kursi, atau pilih koridor lain.
+                  </p>
+                </div>
+              ) : (
+                <ol className="space-y-3">
+                  {hasilCocok.hasil.map((h, urutan) => (
+                    <li key={h.tripId} className="rounded-lg border p-3">
+                      <div className="flex flex-wrap items-start justify-between gap-2">
+                        <div>
+                          <p className="font-semibold">
+                            <span className="font-mono tabular-nums text-muted-foreground">
+                              #{urutan + 1}
+                            </span>{" "}
+                            {h.trip?.originName} ke {h.trip?.destinationName}
+                          </p>
+                          <p className="text-xs text-muted-foreground">
+                            {h.trip?.driver?.name} ·{" "}
+                            <span className="font-mono tabular-nums">
+                              {h.trip
+                                ? new Date(h.trip.departureTime).toLocaleString("id-ID", {
+                                    day: "2-digit",
+                                    month: "short",
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                  })
+                                : ""}
+                            </span>{" "}
+                            WIB ·{" "}
+                            <span className="font-mono tabular-nums">
+                              Rp{(h.trip?.pricePerSeat ?? 0).toLocaleString("id-ID")}
+                            </span>
+                          </p>
+                        </div>
+                        <div className="text-right">
+                          <p className="font-mono text-lg font-bold tabular-nums">
+                            {h.skor.toFixed(4)}
+                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="mt-1"
+                            aria-expanded={skorTerbuka === h.tripId}
+                            onClick={() => setSkorTerbuka(skorTerbuka === h.tripId ? null : h.tripId)}
+                            data-testid={`button-rincian-skor-${h.tripId}`}
+                          >
+                            {skorTerbuka === h.tripId ? "Tutup rincian skor" : "Lihat rincian skor"}
+                          </Button>
+                        </div>
+                      </div>
+
+                      {skorTerbuka === h.tripId && (
+                        <div className="mt-3">
+                          <RincianSkor
+                            skor={h.skor}
+                            komponen={h.komponen}
+                            rincian={h.rincian}
+                            ukuran={h.ukuran}
+                          />
+                          <Link href={`/trips/${h.tripId}`}>
+                            <Button size="sm" className="mt-3">Buka perjalanan ini</Button>
+                          </Link>
+                        </div>
+                      )}
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+          )}
+        </section>
 
         {/* Filters */}
         <div className="flex flex-wrap gap-3 mb-6 p-4 bg-card rounded-xl border">
@@ -117,10 +346,9 @@ export default function TripsPage() {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Semua Koridor</SelectItem>
-              <SelectItem value="kampus">Kampus</SelectItem>
-              <SelectItem value="industri">Industri</SelectItem>
-              <SelectItem value="stasiun">Stasiun</SelectItem>
-              <SelectItem value="event">Event</SelectItem>
+              {(daftarKoridor ?? []).map((k) => (
+                <SelectItem key={k.id} value={String(k.id)}>{k.nama}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

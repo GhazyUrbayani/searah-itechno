@@ -13,9 +13,9 @@ import { useToast } from "@/hooks/use-toast";
  * Kredensial yang sama tercantum di README.
  */
 const AKUN_DEMO = [
-  { email: "budi.santoso@ui.ac.id", password: "demo1234", peran: "Pengemudi" },
-  { email: "sari.dewi@ui.ac.id", password: "demo1234", peran: "Penumpang" },
-  { email: "admin@searah.id", password: "demo1234", peran: "Admin koridor" },
+  { email: "driver@searah.id", password: "searah123", peran: "Pengemudi" },
+  { email: "passenger@searah.id", password: "searah123", peran: "Penumpang" },
+  { email: "admin@searah.id", password: "searah123", peran: "Admin koridor" },
 ];
 
 type Mode = "masuk" | "daftar";

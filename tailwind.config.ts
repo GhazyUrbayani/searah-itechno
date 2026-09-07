@@ -76,16 +76,108 @@ export default {
           border: "var(--sidebar-accent-border)"
         },
         status: {
-          online: "rgb(34 197 94)",
-          away: "rgb(245 158 11)",
-          busy: "rgb(239 68 68)",
-          offline: "rgb(156 163 175)",
+          online: "hsl(149 81% 23%)",
+          away: "hsl(45 97% 46%)",
+          busy: "hsl(3 71% 41%)",
+          offline: "hsl(103 7% 79%)",
+        },
+
+        /*
+         * Kelas warna Tailwind yang sudah telanjur dipakai di halaman
+         * dipetakan ke enam nilai palet. Hijau menjadi rambu, kuning dan
+         * jingga menjadi marka, merah menjadi sirene, sedangkan biru, ungu,
+         * dan abu menjadi turunan tinta dan kabut. Dengan begitu antarmuka
+         * tidak pernah menampilkan warna ketujuh, tanpa perlu menyunting
+         * ratusan kelas satu per satu.
+         */
+        green: {
+          50: "hsl(149 30% 95%)", 100: "hsl(149 28% 88%)", 200: "hsl(149 26% 78%)",
+          300: "hsl(149 28% 62%)", 400: "hsl(149 45% 44%)", 500: "hsl(149 60% 32%)",
+          600: "hsl(149 81% 23%)", 700: "hsl(149 81% 19%)", 800: "hsl(149 80% 15%)",
+          900: "hsl(149 78% 11%)", 950: "hsl(149 78% 7%)",
+        },
+        emerald: {
+          50: "hsl(149 30% 95%)", 100: "hsl(149 28% 88%)", 200: "hsl(149 26% 78%)",
+          300: "hsl(149 28% 62%)", 400: "hsl(149 45% 44%)", 500: "hsl(149 60% 32%)",
+          600: "hsl(149 81% 23%)", 700: "hsl(149 81% 19%)", 800: "hsl(149 80% 15%)",
+          900: "hsl(149 78% 11%)", 950: "hsl(149 78% 7%)",
+        },
+        amber: {
+          50: "hsl(45 80% 95%)", 100: "hsl(45 78% 87%)", 200: "hsl(45 80% 76%)",
+          300: "hsl(45 88% 64%)", 400: "hsl(45 92% 55%)", 500: "hsl(45 97% 46%)",
+          600: "hsl(45 97% 39%)", 700: "hsl(43 95% 31%)", 800: "hsl(43 92% 24%)",
+          900: "hsl(43 90% 17%)", 950: "hsl(43 90% 11%)",
+        },
+        yellow: {
+          50: "hsl(45 80% 95%)", 100: "hsl(45 78% 87%)", 200: "hsl(45 80% 76%)",
+          300: "hsl(45 88% 64%)", 400: "hsl(45 92% 55%)", 500: "hsl(45 97% 46%)",
+          600: "hsl(45 97% 39%)", 700: "hsl(43 95% 31%)", 800: "hsl(43 92% 24%)",
+          900: "hsl(43 90% 17%)", 950: "hsl(43 90% 11%)",
+        },
+        orange: {
+          50: "hsl(45 80% 95%)", 100: "hsl(45 78% 87%)", 200: "hsl(45 80% 76%)",
+          300: "hsl(45 88% 64%)", 400: "hsl(45 92% 55%)", 500: "hsl(45 97% 46%)",
+          600: "hsl(45 97% 39%)", 700: "hsl(43 95% 31%)", 800: "hsl(43 92% 24%)",
+          900: "hsl(43 90% 17%)", 950: "hsl(43 90% 11%)",
+        },
+        red: {
+          50: "hsl(3 60% 96%)", 100: "hsl(3 60% 91%)", 200: "hsl(3 58% 83%)",
+          300: "hsl(3 58% 71%)", 400: "hsl(3 62% 58%)", 500: "hsl(3 68% 48%)",
+          600: "hsl(3 71% 41%)", 700: "hsl(3 72% 34%)", 800: "hsl(3 72% 26%)",
+          900: "hsl(3 70% 18%)", 950: "hsl(3 70% 12%)",
+        },
+        rose: {
+          50: "hsl(3 60% 96%)", 100: "hsl(3 60% 91%)", 200: "hsl(3 58% 83%)",
+          300: "hsl(3 58% 71%)", 400: "hsl(3 62% 58%)", 500: "hsl(3 68% 48%)",
+          600: "hsl(3 71% 41%)", 700: "hsl(3 72% 34%)", 800: "hsl(3 72% 26%)",
+          900: "hsl(3 70% 18%)", 950: "hsl(3 70% 12%)",
+        },
+        blue: {
+          50: "hsl(211 18% 95%)", 100: "hsl(211 18% 89%)", 200: "hsl(211 17% 79%)",
+          300: "hsl(211 16% 65%)", 400: "hsl(211 18% 50%)", 500: "hsl(211 22% 40%)",
+          600: "hsl(211 25% 32%)", 700: "hsl(211 27% 25%)", 800: "hsl(211 27% 18%)",
+          900: "hsl(211 27% 12%)", 950: "hsl(211 27% 8%)",
+        },
+        purple: {
+          50: "hsl(211 18% 95%)", 100: "hsl(211 18% 89%)", 200: "hsl(211 17% 79%)",
+          300: "hsl(211 16% 65%)", 400: "hsl(211 18% 50%)", 500: "hsl(211 22% 40%)",
+          600: "hsl(211 25% 32%)", 700: "hsl(211 27% 25%)", 800: "hsl(211 27% 18%)",
+          900: "hsl(211 27% 12%)", 950: "hsl(211 27% 8%)",
+        },
+        gray: {
+          50: "hsl(71 16% 96%)", 100: "hsl(103 8% 92%)", 200: "hsl(103 7% 85%)",
+          300: "hsl(103 7% 79%)", 400: "hsl(103 6% 64%)", 500: "hsl(211 8% 46%)",
+          600: "hsl(211 12% 36%)", 700: "hsl(211 18% 26%)", 800: "hsl(211 22% 17%)",
+          900: "hsl(211 27% 11%)", 950: "hsl(211 27% 7%)",
+        },
+        slate: {
+          50: "hsl(71 16% 96%)", 100: "hsl(103 8% 92%)", 200: "hsl(103 7% 85%)",
+          300: "hsl(103 7% 79%)", 400: "hsl(103 6% 64%)", 500: "hsl(211 8% 46%)",
+          600: "hsl(211 12% 36%)", 700: "hsl(211 18% 26%)", 800: "hsl(211 22% 17%)",
+          900: "hsl(211 27% 11%)", 950: "hsl(211 27% 7%)",
         },
       },
       fontFamily: {
-        sans: ["var(--font-sans)"],
-        serif: ["var(--font-serif)"],
-        mono: ["var(--font-mono)"],
+        sans: ["var(--font-body)"],
+        display: ["var(--font-display)"],
+        mono: ["var(--font-data)"],
+      },
+      /*
+       * Bayangan abu yang sama di setiap kartu adalah ciri tampilan bawaan
+       * yang hendak dihindari. Pemisahan bidang mengandalkan garis rambut.
+       * Hanya lapisan mengambang seperti dropdown dan dialog yang tetap
+       * memakai bayangan, dan bentuknya tegas, bukan kabut lebar.
+       */
+      boxShadow: {
+        xs: "none",
+        sm: "none",
+        DEFAULT: "none",
+        md: "none",
+        lg: "0 2px 0 0 hsl(var(--border))",
+        xl: "0 3px 0 0 hsl(var(--border))",
+        "2xl": "0 3px 0 0 hsl(var(--border))",
+        inner: "none",
+        none: "none",
       },
       keyframes: {
         "accordion-down": {

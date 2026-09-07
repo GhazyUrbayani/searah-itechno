@@ -94,6 +94,20 @@ export interface IStorage {
   }>;
 }
 
+/**
+ * Tanggal Senin pada minggu yang memuat waktu tertentu, dalam format
+ * YYYY-MM-DD. Perhitungan memakai komponen UTC saja.
+ */
+function awalMingguUtc(waktu: Date): string {
+  const salinan = new Date(
+    Date.UTC(waktu.getUTCFullYear(), waktu.getUTCMonth(), waktu.getUTCDate()),
+  );
+  // getUTCDay mengembalikan 0 untuk Minggu. Minggu dianggap dimulai Senin.
+  const geser = (salinan.getUTCDay() + 6) % 7;
+  salinan.setUTCDate(salinan.getUTCDate() - geser);
+  return salinan.toISOString().slice(0, 10);
+}
+
 export class PostgresStorage implements IStorage {
   // ─── Pengguna ──────────────────────────────────────────────────────────────
   async getUsers(): Promise<User[]> {
@@ -330,8 +344,24 @@ export class PostgresStorage implements IStorage {
     return baris;
   }
 
+  /**
+   * Menghitung agregat dampak beserta rinciannya per minggu.
+   *
+   * Pengelompokan memakai waktu keberangkatan perjalanan, bukan waktu baris
+   * ledger dibuat. Seluruh baris ledger yang dihasilkan skrip seed punya
+   * createdAt yang hampir sama, sehingga pengelompokan berdasarkan createdAt
+   * akan menumpuk semuanya di satu batang dan grafik kehilangan maknanya.
+   *
+   * Kunci minggu dihitung sepenuhnya dalam UTC. Mencampur getDay dan getDate
+   * yang memakai zona waktu mesin dengan toISOString yang memakai UTC akan
+   * menggeser kunci satu hari di zona waktu Indonesia.
+   */
   async getAgregatDampak(): Promise<AgregatDampak> {
-    const semuaBaris = await db.select().from(ledgerDampak).orderBy(desc(ledgerDampak.createdAt));
+    const baris = await db
+      .select({ ledger: ledgerDampak, berangkat: trips.departureTime })
+      .from(ledgerDampak)
+      .leftJoin(bookings, eq(ledgerDampak.bookingId, bookings.id))
+      .leftJoin(trips, eq(bookings.tripId, trips.id));
 
     let totalLiterDihemat = 0;
     let totalKgCo2eDihemat = 0;
@@ -339,39 +369,38 @@ export class PostgresStorage implements IStorage {
 
     const mingguanPeta = new Map<string, MingguanDampak>();
 
-    for (const baris of semuaBaris) {
-      totalLiterDihemat += baris.literDihemat;
-      totalKgCo2eDihemat += baris.kgCo2eDihemat;
-      totalRupiahDihemat += baris.rupiahDihemat;
+    for (const b of baris) {
+      const l = b.ledger;
+      totalLiterDihemat += l.literDihemat;
+      totalKgCo2eDihemat += l.kgCo2eDihemat;
+      totalRupiahDihemat += l.rupiahDihemat;
 
-      const tgl = new Date(baris.createdAt);
-      const d = new Date(tgl);
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-      d.setDate(diff);
-      const kunciMinggu = d.toISOString().slice(0, 10);
+      const acuan = new Date(b.berangkat ?? l.createdAt);
+      const kunciMinggu = awalMingguUtc(acuan);
 
       const ada = mingguanPeta.get(kunciMinggu);
       if (ada) {
-        ada.literDihemat += baris.literDihemat;
-        ada.kgCo2eDihemat += baris.kgCo2eDihemat;
-        ada.rupiahDihemat += baris.rupiahDihemat;
+        ada.literDihemat += l.literDihemat;
+        ada.kgCo2eDihemat += l.kgCo2eDihemat;
+        ada.rupiahDihemat += l.rupiahDihemat;
         ada.jumlahPerjalanan += 1;
       } else {
         mingguanPeta.set(kunciMinggu, {
           minggu: kunciMinggu,
-          literDihemat: baris.literDihemat,
-          kgCo2eDihemat: baris.kgCo2eDihemat,
-          rupiahDihemat: baris.rupiahDihemat,
+          literDihemat: l.literDihemat,
+          kgCo2eDihemat: l.kgCo2eDihemat,
+          rupiahDihemat: l.rupiahDihemat,
           jumlahPerjalanan: 1,
         });
       }
     }
 
-    const mingguan = Array.from(mingguanPeta.values()).sort((a, b) => a.minggu.localeCompare(b.minggu));
+    const mingguan = Array.from(mingguanPeta.values()).sort((a, b) =>
+      a.minggu.localeCompare(b.minggu),
+    );
 
     return {
-      totalPerjalanan: semuaBaris.length,
+      totalPerjalanan: baris.length,
       totalLiterDihemat: Math.round(totalLiterDihemat * 100) / 100,
       totalKgCo2eDihemat: Math.round(totalKgCo2eDihemat * 100) / 100,
       totalRupiahDihemat: Math.round(totalRupiahDihemat),

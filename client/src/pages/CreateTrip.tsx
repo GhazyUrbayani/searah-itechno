@@ -119,7 +119,24 @@ export default function CreateTripPage() {
         </Card>
 
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(d => mutation.mutate(d))} className="space-y-6">
+          <form
+            onSubmit={form.handleSubmit(
+              (d) => mutation.mutate(d),
+              (galat) => {
+                // Tanpa penangan ini, kegagalan validasi berlalu tanpa jejak dan
+                // tombol kirim terlihat seperti tidak berfungsi.
+                const ruas = Object.entries(galat)
+                  .map(([nama, isi]) => `${nama} ${(isi as { message?: string })?.message ?? "tidak valid"}`)
+                  .join("; ");
+                toast({
+                  title: "Formulir belum lengkap",
+                  description: ruas || "Periksa kembali isian yang ditandai.",
+                  variant: "destructive",
+                });
+              },
+            )}
+            className="space-y-6"
+          >
             {/* Route */}
             <Card>
               <CardHeader><CardTitle className="text-base flex items-center gap-2"><MapPin className="h-4 w-4 text-primary" /> Rute Perjalanan</CardTitle></CardHeader>
@@ -236,9 +253,13 @@ export default function CreateTripPage() {
                           size="sm"
                           className="h-6 text-xs text-destructive hover:bg-destructive/10 px-2"
                           onClick={() => {
-                            form.setValue("pricePerSeat", 999999);
+                            // Nilai harus kelipatan 1000 karena input tarif memakai
+                            // step 1000. Angka yang bukan kelipatan membuat peramban
+                            // memblokir pengiriman, sehingga permintaan tidak pernah
+                            // sampai ke trigger basis data yang hendak diuji.
+                            form.setValue("pricePerSeat", 999000);
                             toast({
-                              title: "Tarif diatur Rp999.999",
+                              title: "Tarif diatur Rp999.000",
                               description: "Kirim formulir ini untuk menguji penolakan oleh trigger plafon basis data.",
                             });
                           }}

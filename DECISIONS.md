@@ -281,3 +281,135 @@ Perhitungan penghematan bahan bakar dan reduksi emisi dijalankan satu kali saat 
 ## KD-21. Aturan kepatuhan ditegakkan lewat trigger PostgreSQL
 
 Tiga aturan bisnis yaitu plafon tarif per kilometer, batas maksimal dua perjalanan aktif per hari, dan kapasitas kursi pemesanan dipasang sebagai trigger `BEFORE INSERT OR UPDATE` pada PostgreSQL di Neon. Alternatif yang mengandalkan validasi di middleware Express semata ditolak karena rentan terhadap race condition pada pemesanan bersamaan dan tidak melindungi integritas data jika ada operasi basis data langsung di luar handler HTTP.
+
+## KD-22. Skoring berjalan di aplikasi, bukan di SQL
+
+**Keputusan.** Peringkat kandidat dihitung modul murni `shared/matching.ts`. Basis
+data hanya menyaring kandidat lewat klausa `WHERE` pada koridor dan status.
+
+**Alternatif yang ditolak.** Menyusun skor sebagai ekspresi SQL di dalam kueri
+pengambilan perjalanan.
+
+**Alasan.** Rumus skoring adalah bagian produk yang paling sering ditanya dan
+paling sering diubah. Sebagai fungsi murni, rumus dapat diuji tanpa basis data,
+dan seluruh test berjalan dalam ratusan milidetik. Rumus dalam SQL menuntut
+basis data hidup untuk setiap pengujian, menyulitkan pengujian nilai batas, dan
+menyulitkan pengembalian rincian per komponen yang dibutuhkan antarmuka.
+
+**Pembagian peran.** Lapisan penyimpanan menegakkan aturan yang tidak boleh
+dilanggar. Lapisan aplikasi menyusun peringkat yang bersifat preferensi.
+
+## KD-23. Skor maksimum pencocokan adalah 0,90
+
+**Konteks.** Empat bobot positif berjumlah 0,35 ditambah 0,25 ditambah 0,20
+ditambah 0,10, yaitu 0,90. Sisa 0,10 dialokasikan sebagai penalti deviasi yang
+selalu mengurangi.
+
+**Keputusan.** Sifat ini dibiarkan apa adanya dan didokumentasikan, bukan
+dinormalisasi menjadi 1,00.
+
+**Alasan.** Penormalan akan menyembunyikan struktur bobot yang diminta
+spesifikasi. Antarmuka menampilkan skor dengan pembanding eksplisit dalam
+bentuk `0.5600 dari 0,9000`, sehingga pengguna tidak salah membaca skor 0,62
+sebagai kecocokan 62 persen.
+
+## KD-24. Koordinat perjalanan pada data contoh diturunkan dari koridornya
+
+**Konteks.** Skrip seed sebelumnya menulis koordinat yang sama untuk seluruh
+perjalanan, yaitu `-6.36, 106.82` menuju `-6.37, 106.83`, tanpa memandang
+koridor. Nilai `jarak_km` juga ditulis sebagai angka tetap 1,4, 8,6, atau 18,2
+dan tidak diturunkan dari koordinat itu.
+
+**Akibat yang terukur.** Titik asal perjalanan berjarak 1.711 meter dari asal
+koridor, sedangkan rutenya sendiri hanya 1,40 kilometer. Penjemputan di ujung
+koridor terhitung sebagai deviasi 180,5 persen, jauh di atas batas 20 persen,
+sehingga seluruh kandidat gugur dan `GET /api/trips/match` selalu mengembalikan
+daftar kosong. Untuk koridor kedua, `jarak_km` bernilai 8,6 padahal jarak
+sesungguhnya antara koordinatnya sekitar 1,4 kilometer, sehingga plafon tarif
+dan Ledger Dampak sama-sama memakai jarak fiktif.
+
+**Keputusan.** Titik asal dan tujuan diletakkan di sekitar ujung koridornya
+dengan pergeseran menentu sekitar 65 meter per langkah, lalu `jarak_km`
+dihitung dengan Haversine dari koordinat itu.
+
+**Verifikasi.** Selisih antara `jarak_km` tersimpan dan hasil hitung ulang dari
+koordinat adalah nol untuk seluruh perjalanan. Pencocokan meloloskan 3 dari 3
+kandidat pada koridor 1, 2 dari 2 pada koridor 2, dan 2 dari 2 pada koridor 3.
+
+## KD-25. Agregat mingguan dikelompokkan menurut waktu keberangkatan
+
+**Konteks.** Fungsi agregat sebelumnya mengelompokkan baris ledger menurut
+`created_at` milik baris ledger itu sendiri. Seluruh baris yang dihasilkan
+skrip seed punya `created_at` yang hampir sama, sehingga grafik menumpuk di
+satu batang. Perhitungan kunci minggu juga mencampur `getDay` dan `getDate`
+yang memakai zona waktu mesin dengan `toISOString` yang memakai UTC, sehingga
+kunci bergeser satu hari di zona waktu Indonesia dan memunculkan dua batang
+pada tanggal berurutan, yaitu 2026-08-30 dan 2026-08-31.
+
+**Keputusan.** Pengelompokan memakai `trips.departure_time` lewat gabungan ke
+tabel `bookings` dan `trips`. Kunci minggu dihitung sepenuhnya dalam UTC oleh
+fungsi `awalMingguUtc`.
+
+**Verifikasi.** Grafik kini menghasilkan dua batang pada 2026-08-24 dan
+2026-08-31, yaitu dua hari Senin yang berjarak tepat satu minggu.
+
+## KD-26. Kredensial akun demo disatukan ke satu sumber
+
+**Konteks.** Halaman masuk memuat tiga tombol akun demo dengan alamat
+`budi.santoso@ui.ac.id`, `sari.dewi@ui.ac.id`, dan `admin@searah.id` berkata
+sandi `demo1234`. Skrip seed membuat akun `driver@searah.id`,
+`passenger@searah.id`, dan `admin@searah.id` berkata sandi `searah123`.
+Ketiga tombol menjawab HTTP 401, sehingga jalur demo satu klik tidak berfungsi.
+
+**Keputusan.** Konstanta di halaman masuk disamakan dengan yang dihasilkan
+skrip seed. Kredensial yang sama dicantumkan di README.
+
+## KD-27. Tangkapan layar lebar 360 dan 768 piksel dibuang
+
+**Konteks.** Tangkapan layar dihasilkan Chrome headless dengan opsi
+`--window-size`. Berkas keluarannya memang berukuran 360 dan 768 piksel, tetapi
+tata letak di dalamnya dirender pada lebar yang lebih besar lalu dipotong.
+Judul, angka, dan label sumbu terlihat terpenggal, padahal tata letak
+sesungguhnya rapi.
+
+**Verifikasi tandingan.** Pada viewport teremulasi 360 kali 780 piksel di
+peramban sungguhan, `document.body.scrollWidth` sama dengan `window.innerWidth`
+pada halaman depan, pencarian, dampak, dan kepatuhan. Tidak ada luapan
+horizontal, dan tangkapan layar peramban menunjukkan teks yang membungkus
+dengan benar.
+
+**Keputusan.** Berkas 360 dan 768 piksel dihapus karena memberi kesan keliru
+tentang tata letak. Hanya tangkapan layar 1440 piksel yang disimpan, dan
+kesesuaian pada 360 piksel dinyatakan lewat hasil pengukuran, bukan lewat
+gambar yang menyesatkan.
+
+## KD-28. Nilai uji plafon disesuaikan dengan atribut step input
+
+**Konteks.** Tombol Uji tarif di atas plafon pada halaman pembuatan perjalanan
+mengisi `pricePerSeat` dengan 999999. Input tarif memakai `step="1000"`.
+Peramban menolak nilai yang bukan kelipatan 1000 lewat validasi HTML bawaan,
+sehingga `requestSubmit` tidak pernah memicu event submit.
+
+**Akibat yang terukur.** Tidak ada permintaan `POST /api/trips` yang terkirim.
+Trigger basis data tidak pernah dipanggil, dan tidak ada pesan galat yang
+muncul. Tombol yang justru dipakai saat presentasi terlihat mati.
+
+**Keputusan.** Nilai uji diubah menjadi 999000.
+
+**Verifikasi.** Penekanan tombol lalu pengiriman formulir menghasilkan
+`POST /api/trips 422` dengan pesan `Tarif per kursi melampaui plafon koridor:
+Rp999000 > batas maksimum Rp9759 (jarak 3.3 km x plafon Rp3000/km)` yang
+berasal dari basis data.
+
+## KD-29. Kegagalan validasi formulir tidak boleh diam
+
+**Konteks.** `form.handleSubmit` pada halaman pembuatan perjalanan hanya
+menerima satu argumen. Ketika validasi gagal, tidak ada yang terjadi di layar.
+Tombol kirim tampak tidak berfungsi tanpa penjelasan apa pun.
+
+**Keputusan.** Argumen kedua ditambahkan. Ruas yang gagal beserta pesannya
+ditampilkan lewat toast berjudul Formulir belum lengkap.
+
+**Alasan.** Pesan galat harus menjelaskan apa yang salah dan apa yang harus
+dilakukan. Kegagalan yang diam adalah bentuk terburuknya, karena pengguna tidak
+punya petunjuk sama sekali.

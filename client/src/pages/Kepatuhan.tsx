@@ -152,7 +152,7 @@ export default function KepatuhanPage() {
               <div>
                 <CardTitle className="text-base">Pengujian Langsung Penolakan Trigger</CardTitle>
                 <CardDescription>
-                  Uji coba pengiriman perjalanan dengan tarif Rp999.999 yang melampaui batas plafon koridor.
+                  Uji coba pengiriman perjalanan dengan tarif Rp999.000 yang melampaui batas plafon koridor.
                 </CardDescription>
               </div>
               <Badge variant="outline" className="text-xs">

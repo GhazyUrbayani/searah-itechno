@@ -98,359 +98,336 @@ export default function LandingPage() {
         </div>
       </nav>
 
-      {/* Hero Section dengan Papan Keberangkatan Koridor */}
-      <section className="relative overflow-hidden py-12 md:py-20 border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-12 gap-8 items-start">
-            {/* Sisi Kiri: Pesan Inti */}
-            <div className="lg:col-span-5 space-y-6">
-              <Badge variant="secondary" className="font-medium gap-1.5 py-1 px-3">
-                <span className="w-2 h-2 rounded-full bg-primary inline-block animate-pulse" />
-                Platform Carpooling Koridor Kampus
-              </Badge>
-
-              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight">
-                Searah Tujuan,{" "}
-                <span className="text-primary">Berbagi Kursi</span>
+      {/*
+        Papan keberangkatan mendahului kalimat pemasaran. Orang harus paham
+        produknya dari kolom jam, rute, kursi, dan tarif, tanpa membaca satu
+        kalimat promosi pun.
+      */}
+      <section className="border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+          <div className="flex flex-wrap items-end justify-between gap-4 pb-6">
+            <div className="max-w-xl">
+              <h1 className="text-2xl sm:text-3xl font-extrabold">
+                Papan keberangkatan koridor hari ini
               </h1>
-
-              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
-                Bukan ojek online atau taksi gelap. SeArah membatasi perjalanan pada koridor tertutup sivitas kampus,
-                menegakkan batas tarif per kilometer, dan mencatat penghematan emisi secara permanen.
+              <p className="mt-2 text-sm text-muted-foreground">
+                Kursi kosong pada koridor komuter institusi. Tarif dibatasi plafon per kilometer
+                yang ditegakkan basis data. Setiap perjalanan selesai menerbitkan catatan
+                penghematan bahan bakar dan emisi.
               </p>
-
-              <div className="flex flex-col sm:flex-row gap-3 pt-2">
-                <Link href="/trips">
-                  <Button size="lg" className="font-bold gap-2 w-full sm:w-auto" data-testid="button-hero-trips">
-                    Cari Tumpangan <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </Link>
-                <Link href="/dampak">
-                  <Button size="lg" variant="outline" className="gap-2 w-full sm:w-auto">
-                    Lihat Ledger Dampak
-                  </Button>
-                </Link>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3 pt-4 border-t text-xs text-muted-foreground">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle className="h-4 w-4 text-primary shrink-0" />
-                  <span>Akun Kampus</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle className="h-4 w-4 text-primary shrink-0" />
-                  <span>Plafon Tarif</span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle className="h-4 w-4 text-primary shrink-0" />
-                  <span>Audit Emisi</span>
-                </div>
-              </div>
             </div>
+            <div className="flex flex-wrap gap-2">
+              <Link href="/trips">
+                <Button className="font-semibold" data-testid="button-hero-trips">
+                  Cari tumpangan
+                </Button>
+              </Link>
+              <Link href="/dampak">
+                <Button variant="outline">Lihat ledger dampak</Button>
+              </Link>
+            </div>
+          </div>
 
-            {/* Sisi Kanan: Papan Keberangkatan Koridor Hari Ini */}
-            <div className="lg:col-span-7">
-              <div className="rounded-xl border bg-card shadow-lg overflow-hidden">
-                {/* Header Papan Keberangkatan */}
-                <div className="bg-primary/5 p-4 border-b flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <div className="w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse" />
-                      <h2 className="text-base font-bold tracking-tight">Papan Keberangkatan Koridor Hari Ini</h2>
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">
-                      Jadwal langsung perjalanan komuter kampus yang membuka kursi
-                    </p>
-                  </div>
-                  <Badge variant="outline" className="font-mono text-[11px] bg-background">
-                    Pembaruan Langsung
-                  </Badge>
-                </div>
+          {/* Penyaring koridor */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-3 text-xs">
+            <span className="shrink-0 text-muted-foreground">Koridor</span>
+            <button
+              onClick={() => setKoridorPilihan(null)}
+              aria-pressed={koridorPilihan === null}
+              className={`shrink-0 border px-2.5 py-1 ${
+                koridorPilihan === null
+                  ? "border-primary bg-primary text-primary-foreground font-semibold"
+                  : "border-border bg-card text-muted-foreground hover:bg-muted"
+              }`}
+            >
+              Semua
+            </button>
+            {daftarKoridor?.map((k) => (
+              <button
+                key={k.id}
+                onClick={() => setKoridorPilihan(k.id)}
+                aria-pressed={koridorPilihan === k.id}
+                className={`shrink-0 border px-2.5 py-1 ${
+                  koridorPilihan === k.id
+                    ? "border-primary bg-primary text-primary-foreground font-semibold"
+                    : "border-border bg-card text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                {k.nama}
+              </button>
+            ))}
+          </div>
 
-                {/* Filter Koridor Cepat */}
-                <div className="px-4 py-2 bg-muted/30 border-b flex items-center gap-2 overflow-x-auto text-xs">
-                  <span className="text-muted-foreground shrink-0 font-medium">Pilih Rute:</span>
-                  <button
-                    onClick={() => setKoridorPilihan(null)}
-                    className={`px-2.5 py-1 rounded-full shrink-0 transition-colors ${
-                      koridorPilihan === null
-                        ? "bg-primary text-primary-foreground font-semibold"
-                        : "bg-background border text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    Semua Koridor
-                  </button>
-                  {daftarKoridor?.map((k) => (
-                    <button
-                      key={k.id}
-                      onClick={() => setKoridorPilihan(k.id)}
-                      className={`px-2.5 py-1 rounded-full shrink-0 transition-colors ${
-                        koridorPilihan === k.id
-                          ? "bg-primary text-primary-foreground font-semibold"
-                          : "bg-background border text-muted-foreground hover:bg-muted"
-                      }`}
-                    >
-                      {k.nama}
-                    </button>
-                  ))}
-                </div>
+          <div className="papan overflow-x-auto">
+            <table className="w-full min-w-[19rem] text-sm">
+              <caption className="sr-only">
+                Daftar perjalanan yang masih membuka kursi pada koridor terpilih
+              </caption>
+              <thead>
+                <tr className="border-b bg-muted/40 text-left text-xs text-muted-foreground">
+                  <th scope="col" className="px-3 py-2 font-medium">Jam</th>
+                  <th scope="col" className="px-3 py-2 font-medium">Rute</th>
+                  <th scope="col" className="hidden px-3 py-2 font-medium lg:table-cell">Koridor</th>
+                  <th scope="col" className="hidden px-3 py-2 text-right font-medium sm:table-cell">Jarak</th>
+                  <th scope="col" className="px-3 py-2 text-right font-medium">Kursi</th>
+                  <th scope="col" className="px-3 py-2 text-right font-medium">Tarif</th>
+                  <th scope="col" className="hidden px-3 py-2 text-right font-medium sm:table-cell">
+                    <span className="sr-only">Aksi</span>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {muatPerjalanan ? (
+                  [1, 2, 3].map((i) => (
+                    <tr key={i} className="border-t">
+                      <td colSpan={7} className="px-3 py-3">
+                        <Skeleton className="h-5 w-full" />
+                      </td>
+                    </tr>
+                  ))
+                ) : perjalananAktif.length === 0 ? (
+                  <tr className="border-t">
+                    <td colSpan={7} className="px-3 py-10 text-center">
+                      <p className="font-medium">Belum ada kursi terbuka di koridor ini</p>
+                      <p className="mt-1 text-sm text-muted-foreground">
+                        Pilih koridor lain, atau tawarkan kursi kendaraanmu sendiri.
+                      </p>
+                      <Link href="/trips/new">
+                        <Button size="sm" className="mt-3">Tawarkan kursi</Button>
+                      </Link>
+                    </td>
+                  </tr>
+                ) : (
+                  perjalananAktif.map((trip) => {
+                    const tgl = new Date(trip.departureTime);
+                    const jamMenit = tgl.toLocaleTimeString("id-ID", {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    });
+                    const sisaKursi = trip.availableSeats - (trip.bookedSeats ?? 0);
+                    const gratis = trip.priceMode === "social";
 
-                {/* Daftar Baris Keberangkatan */}
-                <div className="divide-y">
-                  {muatPerjalanan ? (
-                    <div className="p-6 space-y-3">
-                      {[1, 2, 3].map((i) => (
-                        <Skeleton key={i} className="h-16 w-full rounded-lg" />
-                      ))}
-                    </div>
-                  ) : perjalananAktif.length === 0 ? (
-                    <div className="p-8 text-center text-muted-foreground text-sm">
-                      <Car className="h-10 w-10 mx-auto mb-2 opacity-30" />
-                      <p className="font-medium">Belum ada perjalanan terbuka untuk filter ini</p>
-                      <p className="text-xs mt-1">Pengemudi dapat membuat perjalanan melalui dasbor</p>
-                    </div>
-                  ) : (
-                    perjalananAktif.map((trip) => {
-                      const tgl = new Date(trip.departureTime);
-                      const jamMenit = tgl.toLocaleTimeString("id-ID", {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      });
-                      const sisaKursi = trip.availableSeats - (trip.bookedSeats ?? 0);
-
-                      return (
-                        <div
-                          key={trip.id}
-                          className="p-4 hover:bg-muted/30 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                          data-testid={`row-departure-${trip.id}`}
-                        >
-                          <div className="flex items-start gap-3 min-w-0">
-                            {/* Kotak Jam Keberangkatan */}
-                            <div className="bg-primary/10 text-primary px-2.5 py-1.5 rounded text-center shrink-0 border border-primary/20">
-                              <span className="font-mono text-xs font-extrabold block">{jamMenit}</span>
-                              <span className="text-[10px] block text-muted-foreground">WIB</span>
-                            </div>
-
-                            <div className="min-w-0">
-                              <div className="flex items-center gap-1.5 text-sm font-semibold truncate">
-                                <span>{trip.originName}</span>
-                                <ArrowRight className="h-3 w-3 text-muted-foreground shrink-0" />
-                                <span>{trip.destinationName}</span>
-                              </div>
-                              <div className="flex flex-wrap items-center gap-2 mt-1 text-xs text-muted-foreground">
-                                {trip.koridor && (
-                                  <span className="bg-muted px-2 py-0.5 rounded text-[11px]">
-                                    {trip.koridor.nama}
-                                  </span>
-                                )}
-                                <span className="font-mono">{trip.jarakKm?.toFixed(1) ?? "0.0"} km</span>
-                                <span className="text-green-600 dark:text-green-400 font-medium">
-                                  Tersisa {sisaKursi} kursi
-                                </span>
-                              </div>
-                            </div>
+                    return (
+                      <tr
+                        key={trip.id}
+                        className="cursor-pointer border-t hover:bg-muted/40"
+                        onClick={() => navigate(`/trips/${trip.id}`)}
+                        data-testid={`row-departure-${trip.id}`}
+                      >
+                        <td className="whitespace-nowrap px-3 py-3 align-top">
+                          <span className="font-mono text-base font-bold">{jamMenit}</span>
+                          <span className="ml-1 text-[11px] text-muted-foreground">WIB</span>
+                        </td>
+                        <td className="px-3 py-3 align-top">
+                          <Link href={`/trips/${trip.id}`}>
+                            <span className="font-medium hover:underline">{trip.originName}</span>
+                          </Link>
+                          <div className="text-xs text-muted-foreground">
+                            ke {trip.destinationName}
                           </div>
+                        </td>
+                        <td className="hidden px-3 py-3 align-top text-xs text-muted-foreground lg:table-cell">
+                          {trip.koridor?.nama ?? "-"}
+                        </td>
+                        <td className="hidden whitespace-nowrap px-3 py-3 text-right align-top font-mono text-xs sm:table-cell">
+                          {trip.jarakKm?.toFixed(1) ?? "0.0"} km
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-3 text-right align-top">
+                          <span className="font-mono font-semibold">{sisaKursi}</span>
+                          <span className="text-xs text-muted-foreground">/{trip.availableSeats}</span>
+                        </td>
+                        <td className="whitespace-nowrap px-3 py-3 text-right align-top font-mono font-semibold">
+                          {gratis ? (
+                            <span className="text-primary">Gratis</span>
+                          ) : (
+                            `Rp${(trip.pricePerSeat ?? 0).toLocaleString("id-ID")}`
+                          )}
+                        </td>
+                        <td className="hidden whitespace-nowrap px-3 py-3 text-right align-top sm:table-cell">
+                          <Button
+                            size="sm"
+                            variant="ghost"
+                            className="h-7 px-2 text-xs font-semibold text-primary hover:bg-primary/10"
+                            onClick={(e) => {
+                              // Baris juga dapat diklik. Tanpa ini, satu klik
+                              // memicu dua kali navigasi.
+                              e.stopPropagation();
+                              navigate(`/trips/${trip.id}`);
+                            }}
+                          >
+                            Pesan kursi
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
 
-                          <div className="flex sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 shrink-0">
-                            <span className="font-mono font-bold text-sm">
-                              {trip.priceMode === "social" ? (
-                                <span className="text-green-600 dark:text-green-400">Gratis</span>
-                              ) : (
-                                `Rp${(trip.pricePerSeat ?? 0).toLocaleString("id-ID")}`
-                              )}
-                            </span>
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              className="h-7 text-xs font-semibold"
-                              onClick={() => navigate(`/trips/${trip.id}`)}
-                            >
-                              Pesan Kursi
-                            </Button>
-                          </div>
-                        </div>
-                      );
-                    })
-                  )}
-                </div>
-
-                {/* Footer Papan */}
-                <div className="bg-muted/20 p-3 border-t text-center text-xs text-muted-foreground flex items-center justify-between px-4">
-                  <span>Dibatasi oleh trigger kapasitas dan plafon tarif basis data</span>
-                  <Link href="/trips">
-                    <span className="text-primary font-medium hover:underline cursor-pointer">
-                      Lihat Semua Perjalanan →
-                    </span>
-                  </Link>
-                </div>
-              </div>
-            </div>
+          <div className="flex flex-wrap items-center justify-between gap-2 border border-t-0 border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground">
+            <span>Kapasitas kursi dan plafon tarif ditegakkan trigger basis data</span>
+            <Link href="/trips">
+              <span className="cursor-pointer font-medium text-primary hover:underline">
+                Lihat semua perjalanan
+              </span>
+            </Link>
           </div>
         </div>
       </section>
 
-      {/* Ringkasan Angka Kinerja Platform */}
-      <section className="py-12 bg-card border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            <div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-primary font-mono">2</div>
-              <div className="text-xs sm:text-sm text-muted-foreground mt-1">Institusi Kampus Aktif</div>
-            </div>
-            <div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-primary font-mono">3</div>
-              <div className="text-xs sm:text-sm text-muted-foreground mt-1">Koridor Terdaftar</div>
-            </div>
-            <div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-primary font-mono">0,90</div>
-              <div className="text-xs sm:text-sm text-muted-foreground mt-1">Skor Maksimal Algoritma</div>
-            </div>
-            <div>
-              <div className="text-2xl sm:text-3xl font-extrabold text-primary font-mono">100%</div>
-              <div className="text-xs sm:text-sm text-muted-foreground mt-1">Trigger Basis Data</div>
-            </div>
+      {/*
+        Angka yang ditampilkan hanya yang benar-benar diukur. Persentase tanpa
+        pembilang dan penyebut sengaja tidak dipakai.
+      */}
+      <section className="border-b bg-card">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <dl className="grid grid-cols-2 gap-x-6 gap-y-6 sm:grid-cols-4">
+            {[
+              { angka: "2", satuan: "institusi", label: "terdaftar sebagai penjamin identitas" },
+              { angka: "3", satuan: "koridor", label: "dengan plafon tarif dan jam operasional sendiri" },
+              { angka: "3", satuan: "aturan", label: "ditegakkan trigger PostgreSQL, bukan formulir" },
+              { angka: "48", satuan: "unit test", label: "pada modul pencocokan dan modul dampak" },
+            ].map((item) => (
+              <div key={item.label}>
+                <dt className="sr-only">{item.label}</dt>
+                <dd>
+                  <span className="font-mono text-3xl font-bold text-primary">{item.angka}</span>{" "}
+                  <span className="text-sm font-medium">{item.satuan}</span>
+                  <p className="mt-1 text-xs text-muted-foreground">{item.label}</p>
+                </dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      </section>
+
+      {/*
+        Tiga mode tarif disajikan sebagai tabel perbandingan, bukan tiga kartu
+        seragam. Pembaca dapat membandingkan kolom yang sama antar baris.
+      */}
+      <section className="border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <h2 className="text-xl sm:text-2xl font-extrabold">Tiga mode tarif</h2>
+          <p className="mt-1 mb-5 max-w-2xl text-sm text-muted-foreground">
+            Mode menentukan siapa yang membayar dan berapa batasnya. Ketiganya tunduk pada plafon
+            tarif per kilometer koridor.
+          </p>
+
+          <div className="papan overflow-x-auto">
+            <table className="w-full min-w-[19rem] text-sm">
+              <thead>
+                <tr className="border-b bg-muted/40 text-left text-xs text-muted-foreground">
+                  <th scope="col" className="px-3 py-2 font-medium">Mode</th>
+                  <th scope="col" className="px-3 py-2 font-medium">Untuk siapa</th>
+                  <th scope="col" className="px-3 py-2 text-right font-medium">Tarif</th>
+                  <th scope="col" className="hidden px-3 py-2 font-medium md:table-cell">Yang menegakkan</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr className="border-t">
+                  <td className="px-3 py-3 font-medium align-top">Sosial</td>
+                  <td className="px-3 py-3 align-top text-muted-foreground">
+                    Penumpang bertarif bersubsidi. Dibiayai kas solidaritas institusi.
+                  </td>
+                  <td className="whitespace-nowrap px-3 py-3 text-right align-top font-mono font-semibold text-primary">
+                    Rp0
+                  </td>
+                  <td className="hidden px-3 py-3 align-top text-xs text-muted-foreground md:table-cell">
+                    Trigger menolak mode sosial yang tarifnya di atas nol
+                  </td>
+                </tr>
+                <tr className="border-t">
+                  <td className="px-3 py-3 font-medium align-top">Cost sharing</td>
+                  <td className="px-3 py-3 align-top text-muted-foreground">
+                    Penumpang umum. Membagi biaya bahan bakar dan tol dengan pengemudi.
+                  </td>
+                  <td className="px-3 py-3 text-right align-top text-sm font-medium">
+                    di bawah plafon
+                  </td>
+                  <td className="hidden px-3 py-3 align-top text-xs text-muted-foreground md:table-cell">
+                    Trigger membandingkan tarif terhadap plafon dikali jarak
+                  </td>
+                </tr>
+                <tr className="border-t">
+                  <td className="px-3 py-3 font-medium align-top">Premium</td>
+                  <td className="px-3 py-3 align-top text-muted-foreground">
+                    Penumpang yang menuntut jadwal presisi dan deviasi rute minimal.
+                  </td>
+                  <td className="px-3 py-3 text-right align-top text-sm font-medium">
+                    tetap di bawah plafon
+                  </td>
+                  <td className="hidden px-3 py-3 align-top text-xs text-muted-foreground md:table-cell">
+                    Kuota dua perjalanan aktif per hari tetap berlaku
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </section>
 
-      {/* Tiga Mode Layanan */}
-      <section className="py-16 bg-muted/20 border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-extrabold mb-2">Tiga Mode Layanan</h2>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
-              Fleksibilitas biaya berdasarkan kebutuhan sosial dan komuter institusi
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            <div className="bg-card rounded-xl border p-6 space-y-3">
-              <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center text-green-600 dark:text-green-400">
-                <Users className="h-5 w-5" />
-              </div>
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-base">Mode Sosial</h3>
-                <Badge className="bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400 text-xs">
-                  Subsidi
-                </Badge>
-              </div>
-              <p className="text-xs font-semibold text-primary">Gratis untuk penumpang bersubsidi</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Diperuntukkan bagi mahasiswa atau warga berpenghasilan rendah. Dibiayai melalui kas solidaritas kampus
-                dan wajib bertarif nol rupiah sesuai trigger basis data.
-              </p>
-            </div>
+      {/*
+        Aturan kepatuhan ditulis sebagai daftar definisi. Setiap butir menyebut
+        aturannya dan objek basis data yang menegakkannya, supaya klaimnya dapat
+        diperiksa, bukan hanya dibaca.
+      */}
+      <section className="border-b bg-card">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+          <h2 className="text-xl sm:text-2xl font-extrabold">Aturan yang dijaga basis data</h2>
+          <p className="mt-1 mb-5 max-w-2xl text-sm text-muted-foreground">
+            Aturan berikut hidup sebagai trigger dan constraint PostgreSQL. Manipulasi dari sisi
+            klien tidak dapat menembusnya.
+          </p>
 
-            <div className="bg-card rounded-xl border p-6 space-y-3">
-              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
-                <Fuel className="h-5 w-5" />
+          <dl className="divide-y border-y">
+            {[
+              {
+                aturan: "Tarif tidak melebihi plafon koridor",
+                objek: "trg_cek_plafon_tarif",
+                isi: "Tarif per kursi dibandingkan terhadap plafon per kilometer dikali jarak rute. Jarak dihitung di peladen, bukan dikirim klien.",
+              },
+              {
+                aturan: "Maksimal dua perjalanan aktif per hari",
+                objek: "trg_cek_maks_trip_aktif",
+                isi: "Menghitung perjalanan berstatus terbuka dan berlangsung milik satu pengemudi pada tanggal yang sama menurut waktu Asia/Jakarta.",
+              },
+              {
+                aturan: "Kursi terpesan tidak melebihi kapasitas",
+                objek: "trg_cek_kursi_penuh",
+                isi: "Menjumlahkan kursi pada pemesanan yang masih aktif sebelum baris baru diterima.",
+              },
+              {
+                aturan: "Identitas dijamin institusi",
+                objek: "koridor.institusi_id",
+                isi: "Perjalanan wajib terikat koridor, dan koridor wajib terikat institusi lewat kunci asing.",
+              },
+              {
+                aturan: "Kontak terbuka bertahap",
+                objek: "GET /api/bookings/:id/kontak",
+                isi: "Nomor telepon hanya keluar bila pemanggil adalah pihak pada pemesanan itu dan statusnya sudah terkonfirmasi.",
+              },
+              {
+                aturan: "Ledger dampak tidak dapat disunting",
+                objek: "ledger_dampak.versi_rumus",
+                isi: "Hasil disimpan sekali saat perjalanan selesai. Tidak ada endpoint pembaruan maupun penghapusan.",
+              },
+            ].map((butir) => (
+              <div key={butir.objek} className="grid gap-1 py-4 md:grid-cols-12 md:gap-4">
+                <dt className="md:col-span-4">
+                  <span className="font-medium">{butir.aturan}</span>
+                  <span className="mt-0.5 block font-mono text-xs text-muted-foreground">
+                    {butir.objek}
+                  </span>
+                </dt>
+                <dd className="text-sm text-muted-foreground md:col-span-8">{butir.isi}</dd>
               </div>
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-base">Cost-Sharing</h3>
-                <Badge className="bg-primary/10 text-primary text-xs">
-                  Paling Populer
-                </Badge>
-              </div>
-              <p className="text-xs font-semibold text-primary">Berbagi beban biaya operasional</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Penumpang membagi biaya bahan bakar dan tol secara proporsional dengan pengemudi. Tarif dibatasi oleh
-                plafon per kilometer koridor.
-              </p>
-            </div>
-
-            <div className="bg-card rounded-xl border p-6 space-y-3">
-              <div className="w-10 h-10 rounded-lg bg-amber-500/10 flex items-center justify-center text-amber-600 dark:text-amber-400">
-                <Award className="h-5 w-5" />
-              </div>
-              <div className="flex items-center justify-between">
-                <h3 className="font-bold text-base">Mode Premium</h3>
-                <Badge className="bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 text-xs">
-                  SLA Jelas
-                </Badge>
-              </div>
-              <p className="text-xs font-semibold text-primary">Kepastian waktu dan kenyamanan</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Jadwal keberangkatan presisi dengan deviasi rute minimal. Tetap mematuhi aturan kuota harian maksimal dua
-                perjalanan agar tidak menjadi taksi komersial liar.
-              </p>
-            </div>
-          </div>
+            ))}
+          </dl>
         </div>
       </section>
 
-      {/* Arsitektur Keselamatan */}
-      <section className="py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-2xl sm:text-3xl font-extrabold mb-2">Arsitektur Keselamatan dan Kepatuhan</h2>
-            <p className="text-sm sm:text-base text-muted-foreground max-w-xl mx-auto">
-              Perlindungan dibangun langsung di dalam lapisan logika dan mesin basis data
-            </p>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            <div className="p-4 rounded-xl border bg-card space-y-2">
-              <div className="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center">
-                <Shield className="h-4 w-4" />
-              </div>
-              <h3 className="font-semibold text-sm">Verifikasi Identitas Institusi</h3>
-              <p className="text-xs text-muted-foreground">
-                Domain email kampus diverifikasi untuk memastikan pengguna terdaftar di institusi penjamin.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl border bg-card space-y-2">
-              <div className="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center">
-                <MapPin className="h-4 w-4" />
-              </div>
-              <h3 className="font-semibold text-sm">Batas Plafon Tarif per Km</h3>
-              <p className="text-xs text-muted-foreground">
-                Trigger PostgreSQL menggagalkan penawaran tarif yang melebihi batas tarif per kilometer koridor.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl border bg-card space-y-2">
-              <div className="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center">
-                <Clock className="h-4 w-4" />
-              </div>
-              <h3 className="font-semibold text-sm">Batas Kuota Dua Trip Harian</h3>
-              <p className="text-xs text-muted-foreground">
-                Mencegah pengemudi beroperasi sebagai angkutan komersial liar dengan membatasi dua perjalanan aktif per hari.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl border bg-card space-y-2">
-              <div className="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center">
-                <CheckCircle className="h-4 w-4" />
-              </div>
-              <h3 className="font-semibold text-sm">Integritas Kapasitas Kursi</h3>
-              <p className="text-xs text-muted-foreground">
-                Trigger kursi penuh memvalidasi ketersediaan kursi secara atomik saat pemesanan dibuat.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl border bg-card space-y-2">
-              <div className="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center">
-                <Users className="h-4 w-4" />
-              </div>
-              <h3 className="font-semibold text-sm">Privasi Kontak Bertahap</h3>
-              <p className="text-xs text-muted-foreground">
-                Nomor telepon dan alamat email hanya dapat diakses setelah pemesanan berstatus terkonfirmasi.
-              </p>
-            </div>
-
-            <div className="p-4 rounded-xl border bg-card space-y-2">
-              <div className="w-8 h-8 rounded bg-primary/10 text-primary flex items-center justify-center">
-                <Sparkles className="h-4 w-4" />
-              </div>
-              <h3 className="font-semibold text-sm">Ledger Dampak Terkunci</h3>
-              <p className="text-xs text-muted-foreground">
-                Perhitungan liter bahan bakar dan emisi disimpan permanen saat selesai bersama versi rumus.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Footer */}
       <footer className="border-t py-8 bg-card">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">

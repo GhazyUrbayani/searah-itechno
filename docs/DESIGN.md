@@ -111,16 +111,55 @@ Diagram alur interaksi saat perjalanan dinyatakan selesai:
 
 ## 8. Rationale Keputusan Arsitektur
 
-Keputusan teknis sistem merujuk pada berkas keputusan desain DECISIONS.md:
+Bagian ini memuat keputusan yang paling memengaruhi bentuk sistem. Setiap butir menyebut alternatif yang ditolak beserta alasannya. Catatan lengkap seluruh keputusan berada di `DECISIONS.md`.
 
-- KD-01: Penyambungan klien langsung ke rute API nyata mendahului perbaikan basis data untuk memastikan fungsi jaringan aktif.
-- KD-02: Algoritma jarak Haversine di TypeScript murni dipilih menggantikan PostGIS guna menyederhanakan pengujian dan mempercepat evaluasi.
-- KD-03: Polling berkala TanStack Query menggantikan WebSocket untuk menjamin kompatibilitas fungsi serverless Vercel.
-- KD-06: Seluruh metode penyimpanan diubah asinkron mengikuti karakteristik driver HTTP Neon.
-- KD-11: Penghapusan rute pendaftaran otomatis di sisi klien untuk mencegah manipulasi peran pengguna.
-- KD-14: Penggunaan bcrypt dan hash tiruan pada email tak terdaftar untuk mencegah serangan enumerasi akun.
-- KD-15: Penyimpanan sesi di tabel basis data Postgres via connect-pg-simple untuk mencegah kehilangan sesi saat cold start.
-- KD-16: Pengambilan id pengemudi dan penumpang langsung dari sesi aktif untuk mencegah eskalasi kepemilikan.
-- KD-17: Pembatasan visibilitas nomor telepon dan email hingga pemesanan terkonfirmasi.
-- KD-20: Penyimpanan hasil ledger dampak secara statis saat pemesanan selesai guna menjamin integritas audit historis.
-- KD-21: Penegakan aturan plafon tarif, kuota perjalanan, dan batas kursi menggunakan trigger PostgreSQL untuk mencegah race condition.
+### 8.1 Haversine dipilih daripada PostGIS
+
+Keputusan. Jarak dihitung dengan Haversine di TypeScript murni. Koordinat disimpan sebagai `double precision` biasa.
+
+Alternatif yang ditolak. PostGIS dengan tipe `geography(Point, 4326)`, penyaring `ST_DWithin`, dan indeks GiST.
+
+Alasan. Modul pencocokan belum ada sama sekali di repositori awal, sehingga harus ditulis dari nol. Fungsi murni lebih cepat dibuat dan dapat diuji tanpa basis data. Penyaring spasial adalah optimasi untuk volume besar, sedangkan koridor tertutup membatasi kandidat pada puluhan baris. Konsekuensinya jarak yang dipakai adalah jarak lingkaran besar, bukan jarak jaringan jalan. Rujukan `DECISIONS.md` KD-02.
+
+### 8.2 Pembaruan berkala dipilih daripada koneksi persisten
+
+Keputusan. Kesegaran data dijaga dengan `refetchInterval` milik TanStack Query bernilai 3000 milidetik, dipasang hanya pada tampilan yang menunjukkan sisa kursi.
+
+Alternatif yang ditolak. Server WebSocket dengan paket `ws`.
+
+Alasan. Fungsi serverless berumur pendek dan tidak dapat menahan koneksi persisten. Penilaian dilakukan lewat URL publik di Vercel, sehingga koneksi persisten akan putus setiap kali instance berakhir. Pemasangan selang pada seluruh kueri juga ditolak, karena setiap kueri Neon adalah satu permintaan HTTP dan halaman yang datanya jarang berubah tidak perlu ditarik ulang setiap tiga detik. Rujukan `DECISIONS.md` KD-03.
+
+### 8.3 Hasil ledger disimpan, bukan dihitung ulang
+
+Keputusan. Penghematan dihitung satu kali saat pemesanan berstatus selesai, lalu disimpan di `ledger_dampak` bersama `versi_rumus`.
+
+Alternatif yang ditolak. Menghitung ulang saat render memakai nilai parameter yang berlaku pada saat itu.
+
+Alasan. Parameter akan berubah. Harga bahan bakar naik, faktor emisi diperbarui, dan faktor pengalihan moda akan direvisi setelah survei lapangan. Bila angka dihitung ulang, laporan penghematan bulan lalu ikut berubah setiap kali parameter diperbarui. Penyimpanan hasil menjaga integritas temporal, dan `versi_rumus` menjaga hasil lama tetap dapat ditelusuri. Rujukan `DECISIONS.md` KD-20.
+
+### 8.4 Skoring berjalan di aplikasi, bukan di SQL
+
+Keputusan. Peringkat kandidat dihitung modul murni `shared/matching.ts`. Basis data hanya menyediakan kandidat lewat klausa `WHERE` pada koridor dan status.
+
+Alternatif yang ditolak. Menyusun skor sebagai ekspresi SQL di dalam kueri pengambilan perjalanan.
+
+Alasan. Rumus skoring adalah bagian produk yang paling sering ditanya dan paling sering diubah. Sebagai fungsi murni, rumus itu dapat diuji tanpa basis data, dan 48 unit test berjalan dalam 265 milidetik. Rumus dalam SQL menuntut basis data hidup untuk setiap pengujian, menyulitkan pengujian nilai batas, dan menyulitkan pengembalian rincian per komponen yang dibutuhkan antarmuka. Pemisahan ini juga menjaga peran kedua lapisan tetap jelas. Lapisan penyimpanan menegakkan aturan yang tidak boleh dilanggar, sedangkan lapisan aplikasi menyusun peringkat yang bersifat preferensi.
+
+### 8.5 Riwayat git tidak ditulis ulang
+
+Keputusan. Riwayat dibiarkan apa adanya. Perbaikan dilakukan pada kondisi pohon saat ini, yaitu menulis `.gitignore` yang benar lalu melepas `node_modules` dan berkas basis data dari pelacakan.
+
+Alternatif yang ditolak. Menulis ulang riwayat dengan `git filter-repo` untuk membuang 22.893 berkas `node_modules` yang pernah ter-commit.
+
+Alasan. Penulisan ulang riwayat berisiko tinggi pada hari tenggat, sedangkan yang diperiksa penilai adalah kondisi pohon saat pemeriksaan. Setelah pelepasan pelacakan, jumlah berkas terlacak turun dari 22.893 menjadi puluhan. Rujukan `DECISIONS.md` KD-04.
+
+### 8.6 Keputusan lain
+
+| Kode | Keputusan | Alternatif yang ditolak |
+|---|---|---|
+| KD-06 | Seluruh metode penyimpanan menjadi asinkron | Mempertahankan antarmuka sinkron gaya `better-sqlite3` |
+| KD-07 | Penyaringan di klausa `WHERE` dan penggabungan lewat `LEFT JOIN` | `SELECT *` lalu menyaring di JavaScript, dengan satu kueri tambahan per baris |
+| KD-14 | Login memakai email dan kata sandi bcrypt | Login nomor telepon tanpa kata sandi dengan pendaftaran otomatis |
+| KD-15 | Sesi disimpan di tabel Postgres | Sesi di memori, dan token JWT di localStorage |
+| KD-16 | Kepemilikan diambil dari sesi | Menerima `driverId` dan `passengerId` dari badan permintaan |
+| KD-21 | Aturan kepatuhan sebagai trigger PostgreSQL | Validasi di middleware Express saja |

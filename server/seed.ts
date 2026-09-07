@@ -10,6 +10,39 @@ if (!process.env.DATABASE_URL) {
 
 const sql = neon(process.env.DATABASE_URL);
 
+
+/**
+ * Menempatkan titik asal dan tujuan sebuah perjalanan di sekitar ujung
+ * koridornya, lalu menurunkan jarak rute dari koordinat itu.
+ *
+ * Perjalanan dalam koridor tertutup berjalan menyusuri koridor. Bila titiknya
+ * ditaruh sembarangan, penjemputan di ujung koridor akan terhitung sebagai
+ * deviasi ratusan persen dan seluruh kandidat gugur sebelum diskor.
+ *
+ * Jarak juga harus diturunkan dari koordinat, bukan ditulis sebagai angka
+ * tetap. Jarak dipakai constraint plafon tarif dan perhitungan Ledger Dampak,
+ * jadi angka yang tidak cocok dengan koordinatnya akan merusak keduanya.
+ */
+function titikPerjalanan(koridor: any, urutan: number) {
+  // Pergeseran kecil dan menentu, sekitar 65 meter per langkah. Nilai ini
+  // dijaga jauh di bawah batas deviasi koridor terpendek, yaitu 20 persen dari
+  // 1,3 kilometer atau sekitar 260 meter, supaya kandidat tidak gugur hanya
+  // karena derau data contoh.
+  const geser = (indeks: number) => ((indeks % 5) - 2) * 0.0006;
+
+  const asalLat = Number(koridor.asal_lat) + geser(urutan);
+  const asalLng = Number(koridor.asal_lng) + geser(urutan + 1);
+  const tujuanLat = Number(koridor.tujuan_lat) + geser(urutan + 2);
+  const tujuanLng = Number(koridor.tujuan_lng) + geser(urutan + 3);
+
+  const jarakKm = haversineKm(
+    { lat: asalLat, lng: asalLng },
+    { lat: tujuanLat, lng: tujuanLng },
+  );
+
+  return { asalLat, asalLng, tujuanLat, tujuanLng, jarakKm };
+}
+
 async function main() {
   console.log("Memulai pengisian data awal (seed) SeArah...");
 
@@ -76,7 +109,7 @@ async function main() {
       'Fakultas Teknik UI', -6.3615, 106.8242,
       800, 20,
       3000, '06:00', '21:00', true
-    ) RETURNING id, plafon_tarif_per_km;
+    ) RETURNING id, plafon_tarif_per_km, asal_nama, asal_lat, asal_lng, tujuan_nama, tujuan_lat, tujuan_lng;
   `;
 
   const [k2] = await sql`
@@ -93,7 +126,7 @@ async function main() {
       'Pusat Administrasi Kampus UI', -6.3644, 106.8286,
       1000, 25,
       2500, '06:00', '22:00', true
-    ) RETURNING id, plafon_tarif_per_km;
+    ) RETURNING id, plafon_tarif_per_km, asal_nama, asal_lat, asal_lng, tujuan_nama, tujuan_lat, tujuan_lng;
   `;
 
   const [k3] = await sql`
@@ -110,7 +143,7 @@ async function main() {
       'ITB Kampus Jatinangor', -6.9298, 107.7719,
       1200, 15,
       2000, '05:30', '20:00', true
-    ) RETURNING id, plafon_tarif_per_km;
+    ) RETURNING id, plafon_tarif_per_km, asal_nama, asal_lat, asal_lng, tujuan_nama, tujuan_lat, tujuan_lng;
   `;
 
   // 5. Pengguna (12 pengguna, kata sandi searah123, 3 bersubsidi)
@@ -229,8 +262,9 @@ async function main() {
     const hariKeBelakang = 1 + (i % 7);
     const departureTime = new Date(now.getTime() - hariKeBelakang * 24 * 60 * 60 * 1000 + (i * 37) * 60 * 1000);
 
-    // Hitung jarak koridor
-    const jarakKm = koridor.id === k1.id ? 1.4 : koridor.id === k2.id ? 8.6 : 18.2;
+    // Koordinat dan jarak diturunkan dari ujung koridor.
+    const titik = titikPerjalanan(koridor, i);
+    const jarakKm = titik.jarakKm;
     // Tarif mematuhi plafon
     const batasTarif = Math.floor(jarakKm * koridor.plafon_tarif_per_km);
     const mode = i % 4 === 0 ? "social" : "cost-sharing";
@@ -246,8 +280,8 @@ async function main() {
         gender_preference, status, jarak_km, notes, created_at
       ) VALUES (
         ${driverId}, ${koridor.id}, ${kendaraanId},
-        'Titik Jemput ' || ${koridor.id}, -6.36, 106.82,
-        'Titik Antar ' || ${koridor.id}, -6.37, 106.83,
+        ${koridor.asal_nama}, ${titik.asalLat}, ${titik.asalLng},
+        ${koridor.tujuan_nama}, ${titik.tujuanLat}, ${titik.tujuanLng},
         ${departureTime.toISOString()}, 4, 2,
         ${mode}, ${pricePerSeat}, 2.0,
         'any', 'completed', ${jarakKm}, 'Perjalanan rutin selesai', ${departureTime.toISOString()}
@@ -303,7 +337,8 @@ async function main() {
     const hariKedepan = Math.floor((j - 1) / 2);
     const departureTime = new Date(now.getTime() + (hariKedepan * 24 + 8 + (j % 5)) * 60 * 60 * 1000);
 
-    const jarakKm = koridor.id === k1.id ? 1.4 : koridor.id === k2.id ? 8.6 : 18.2;
+    const titik = titikPerjalanan(koridor, j + 11);
+    const jarakKm = titik.jarakKm;
     const batasTarif = Math.floor(jarakKm * koridor.plafon_tarif_per_km);
     const pricePerSeat = Math.min(batasTarif, Math.round((batasTarif * 0.75) / 1000) * 1000);
 
@@ -317,8 +352,8 @@ async function main() {
         gender_preference, status, jarak_km, notes, created_at
       ) VALUES (
         ${driverId}, ${koridor.id}, ${kendaraanId},
-        'Titik Berangkat ' || ${koridor.id}, -6.36, 106.82,
-        'Titik Tujuan ' || ${koridor.id}, -6.37, 106.83,
+        ${koridor.asal_nama}, ${titik.asalLat}, ${titik.asalLng},
+        ${koridor.tujuan_nama}, ${titik.tujuanLat}, ${titik.tujuanLng},
         ${departureTime.toISOString()}, 4, 1,
         'cost-sharing', ${pricePerSeat}, 2.0,
         'any', 'open', ${jarakKm}, 'Tersedia kursi kosong', ${now.toISOString()}

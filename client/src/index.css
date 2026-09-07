@@ -1,88 +1,112 @@
-@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@400,500,600,700,800&f[]=plus-jakarta-sans@400,500,600,700&display=swap');
+@import url('https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@500,700,800&f[]=plus-jakarta-sans@400,500,600,700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/*
+ * Palet enam nilai, diambil dari rambu dan marka jalan Indonesia.
+ *
+ *   --kertas  #F1F2ED   latar, warna papan
+ *   --tinta   #10161C   teks dan garis
+ *   --rambu   #0B6B3A   hijau rambu petunjuk, dipakai untuk aksi
+ *   --marka   #E8B004   kuning marka, dipakai untuk sorotan dan peringatan
+ *   --kabut   #C9CEC7   garis pemisah dan teks sekunder
+ *   --sirene  #B3261E   penolakan dan galat
+ *
+ * Tidak ada nilai ketujuh. Setiap warna lain di antarmuka diturunkan dari
+ * keenam nilai ini lewat pemetaan skala di tailwind.config.ts.
+ */
+
 @layer base {
   :root {
-    /* SeArah: Clean mobility green, trustworthy and civic */
-    --background: 140 15% 97%;
-    --foreground: 150 20% 12%;
+    --kertas: 71 16% 94%;
+    --tinta: 211 27% 9%;
+    --rambu: 149 81% 23%;
+    --marka: 45 97% 46%;
+    --kabut: 103 7% 79%;
+    --sirene: 3 71% 41%;
 
-    --card: 140 15% 98%;
-    --card-foreground: 150 20% 12%;
+    --background: var(--kertas);
+    --foreground: var(--tinta);
 
-    --popover: 140 15% 98%;
-    --popover-foreground: 150 20% 12%;
+    /* Papan dan kartu sedikit lebih terang daripada latar, bukan lebih gelap,
+       supaya terbaca seperti kertas di atas meja. */
+    --card: 71 20% 98%;
+    --card-foreground: var(--tinta);
 
-    --primary: 152 60% 28%;
-    --primary-foreground: 0 0% 100%;
+    --popover: 71 20% 98%;
+    --popover-foreground: var(--tinta);
 
-    --secondary: 140 20% 92%;
-    --secondary-foreground: 152 40% 20%;
+    --primary: var(--rambu);
+    --primary-foreground: 71 20% 98%;
 
-    --muted: 140 15% 93%;
-    --muted-foreground: 140 8% 50%;
+    --secondary: 103 10% 88%;
+    --secondary-foreground: var(--tinta);
 
-    --accent: 38 85% 50%;
-    --accent-foreground: 0 0% 100%;
+    --muted: 103 9% 90%;
+    --muted-foreground: 211 12% 38%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 0 0% 100%;
+    --accent: var(--marka);
+    --accent-foreground: var(--tinta);
 
-    --border: 140 12% 85%;
-    --input: 140 12% 85%;
-    --ring: 152 60% 28%;
+    --destructive: var(--sirene);
+    --destructive-foreground: 71 20% 98%;
 
-    --radius: 0.625rem;
+    --border: var(--kabut);
+    --input: var(--kabut);
+    --ring: var(--rambu);
 
-    /* Chart colors */
-    --chart-1: 152 60% 28%;
-    --chart-2: 38 85% 50%;
-    --chart-3: 200 70% 42%;
-    --chart-4: 280 55% 52%;
-    --chart-5: 340 65% 48%;
+    /* Sudut hampir siku. Papan keberangkatan dan rambu jalan tidak membulat. */
+    --radius: 0.125rem;
 
-    /* Custom tokens */
-    --font-body: 'Plus Jakarta Sans', 'Inter', sans-serif;
-    --font-display: 'Cabinet Grotesk', 'Plus Jakarta Sans', sans-serif;
+    --chart-1: var(--rambu);
+    --chart-2: var(--marka);
+    --chart-3: 211 27% 32%;
+    --chart-4: var(--sirene);
+    --chart-5: 103 12% 60%;
+
+    --font-body: 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-display: 'Cabinet Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+    --font-data: ui-monospace, 'SF Mono', SFMono-Regular, Menlo, Consolas, monospace;
   }
 
   .dark {
-    --background: 150 18% 8%;
-    --foreground: 140 10% 88%;
+    /* Mode gelap membalik kertas dan tinta. Hijau dan kuning dinaikkan
+       terangnya supaya kontras tetap memenuhi WCAG AA di atas latar gelap. */
+    --background: 211 27% 9%;
+    --foreground: 71 16% 94%;
 
-    --card: 150 16% 10%;
-    --card-foreground: 140 10% 88%;
+    --card: 211 24% 12%;
+    --card-foreground: 71 16% 94%;
 
-    --popover: 150 16% 10%;
-    --popover-foreground: 140 10% 88%;
+    --popover: 211 24% 12%;
+    --popover-foreground: 71 16% 94%;
 
-    --primary: 152 55% 45%;
-    --primary-foreground: 150 20% 8%;
+    --primary: 149 55% 48%;
+    --primary-foreground: 211 27% 9%;
 
-    --secondary: 150 15% 16%;
-    --secondary-foreground: 140 10% 88%;
+    --secondary: 211 20% 18%;
+    --secondary-foreground: 71 16% 94%;
 
-    --muted: 150 15% 14%;
-    --muted-foreground: 140 8% 52%;
+    --muted: 211 20% 16%;
+    --muted-foreground: 103 7% 65%;
 
-    --accent: 38 80% 55%;
-    --accent-foreground: 0 0% 8%;
+    --accent: 45 90% 58%;
+    --accent-foreground: 211 27% 9%;
 
-    --destructive: 0 65% 55%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 3 65% 55%;
+    --destructive-foreground: 71 16% 94%;
 
-    --border: 150 12% 20%;
-    --input: 150 12% 20%;
-    --ring: 152 55% 45%;
+    --border: 211 18% 24%;
+    --input: 211 18% 24%;
+    --ring: 149 55% 48%;
 
-    --chart-1: 152 55% 45%;
-    --chart-2: 38 80% 55%;
-    --chart-3: 200 65% 55%;
-    --chart-4: 280 50% 60%;
-    --chart-5: 340 60% 58%;
+    --chart-1: 149 55% 48%;
+    --chart-2: 45 90% 58%;
+    --chart-3: 103 10% 70%;
+    --chart-4: 3 65% 58%;
+    --chart-5: 211 15% 45%;
   }
 }
 
@@ -90,37 +114,81 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-body);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     @apply font-bold;
-    line-height: 1.2;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  /*
+   * Monospace hanya untuk data tabular, yaitu jam, jarak, tarif, dan angka
+   * ledger. Bukan untuk label dekoratif. Angka dikunci lebarnya supaya kolom
+   * tetap rata seperti papan stasiun.
+   */
+  .font-mono,
+  .tabular {
+    font-family: var(--font-data);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+
+  /* Fokus keyboard harus selalu terlihat, di latar terang maupun gelap. */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
   }
 }
 
-/* Smooth transitions */
-* {
-  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+@layer components {
+  /*
+   * Papan keberangkatan. Baris dipisahkan garis rambut, bukan dikemas menjadi
+   * kartu terpisah, supaya kolom terbaca lurus dari atas ke bawah.
+   */
+  .papan {
+    @apply border border-border bg-card;
+  }
+
+  .papan-baris {
+    @apply border-t border-border;
+  }
+
+  .papan-baris:first-child {
+    @apply border-t-0;
+  }
+
+  /* Penanda status berbentuk persegi, bukan pil. */
+  .tanda {
+    @apply inline-flex items-center gap-1 border px-1.5 py-0.5 text-xs font-medium;
+    border-radius: 2px;
+  }
 }
 
-/* Custom scrollbar */
-::-webkit-scrollbar { width: 6px; height: 6px; }
+/* Batang gulir tipis yang mengikuti warna garis. */
+::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { @apply bg-border rounded-full; }
+::-webkit-scrollbar-thumb { background: hsl(var(--border)); }
 
-/* Trust score badge */
-.trust-excellent { @apply text-green-600 dark:text-green-400; }
-.trust-good { @apply text-blue-600 dark:text-blue-400; }
-.trust-fair { @apply text-yellow-600 dark:text-yellow-400; }
-.trust-poor { @apply text-red-600 dark:text-red-400; }
-
-/* Map container */
-.leaflet-container {
-  border-radius: var(--radius);
-  z-index: 0;
+/*
+ * Menghormati preferensi pengguna yang meminta gerak dikurangi. Animasi
+ * dipangkas menjadi sangat singkat, bukan dihapus, supaya komponen yang
+ * bergantung pada event akhir animasi tetap berjalan.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
